@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{shared/layout}">
+
+<head>
+    <title>Patient Details</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0" th:text="${patient.firstName + ' ' + patient.lastName}">Patient Name</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item"><a href="/patients/list">Patients</a></li>
+                            <li class="breadcrumb-item active">Détails Patient</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Informations du Patient</h3>
+                                <div class="card-tools">
+                                    <a th:href="@{/patients/edit/{id}(id=${patient.id})}"
+                                        class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>ID Patient:</strong> <span th:text="${patient.patientId}">ID</span>
+                                        </p>
+                                        <p><strong>Prénom:</strong> <span th:text="${patient.firstName}">Prénom</span>
+                                        </p>
+                                        <p><strong>Nom:</strong> <span th:text="${patient.lastName}">Nom</span></p>
+                                        <p><strong>Email:</strong> <span th:text="${patient.email}">Email</span></p>
+                                        <p><strong>Téléphone:</strong> <span th:text="${patient.phone}">Téléphone</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Date de Naissance:</strong> <span
+                                                th:text="${patient.dateOfBirth}">Date</span></p>
+                                        <p><strong>Sexe:</strong> <span th:text="${patient.gender}">Sexe</span></p>
+                                        <p><strong>Adresse:</strong> <span th:text="${patient.address}">Adresse</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <p>
+                                    <strong>Statut:</strong>
+                                    <span th:if="${patient.active}" class="badge badge-success">Actif</span>
+                                    <span th:unless="${patient.active}" class="badge badge-danger">Inactif</span>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/patients/list" class="btn btn-secondary">Retour à la Liste</a>
+                                <a th:href="@{/patients/delete/{id}(id=${patient.id})}"
+                                    class="btn btn-danger float-right" onclick="return confirm('Êtes-vous sûr?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

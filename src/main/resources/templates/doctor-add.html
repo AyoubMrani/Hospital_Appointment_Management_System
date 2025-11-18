@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{shared/layout}">
+
+<head>
+    <title>Ajouter Médecin</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Ajouter un Médecin</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item"><a href="/doctors/list">Médecins</a></li>
+                            <li class="breadcrumb-item active">Ajouter Médecin</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">Informations du Médecin</h3>
+                            </div>
+                            <form method="post" th:action="@{/doctors/save}" th:object="${doctor}">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="firstName">Prénom <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="firstName" placeholder="Prénom"
+                                            th:field="*{firstName}" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="lastName">Nom <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="lastName" placeholder="Nom"
+                                            th:field="*{lastName}" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="specialization">Spécialisation <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="specialization"
+                                            th:field="*{specialization}" required
+                                            placeholder="ex: Cardiologie, Dermatologie">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="email">Email</label>
+                                        <input type="email" class="form-control" id="email" placeholder="Email"
+                                            th:field="*{email}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="phone">Téléphone <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="phone" placeholder="Téléphone"
+                                            th:field="*{phone}" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Jours de Travail</label>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="monday"
+                                                name="workingDays" value="Lundi" th:field="*{workingDays}">
+                                            <label class="form-check-label" for="monday">Lundi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="tuesday"
+                                                name="workingDays" value="Mardi" th:field="*{workingDays}">
+                                            <label class="form-check-label" for="tuesday">Mardi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="wednesday"
+                                                name="workingDays" value="Mercredi" th:field="*{workingDays}">
+                                            <label class="form-check-label" for="wednesday">Mercredi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="thursday"
+                                                name="workingDays" value="Jeudi" th:field="*{workingDays}">
+                                            <label class="form-check-label" for="thursday">Jeudi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="friday"
+                                                name="workingDays" value="Vendredi" th:field="*{workingDays}">
+                                            <label class="form-check-label" for="friday">Vendredi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="saturday"
+                                                name="workingDays" value="Samedi" th:field="*{workingDays}">
+                                            <label class="form-check-label" for="saturday">Samedi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="sunday"
+                                                name="workingDays" value="Dimanche" th:field="*{workingDays}">
+                                            <label class="form-check-label" for="sunday">Dimanche</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="active"
+                                                th:field="*{active}" checked>
+                                            <label class="custom-control-label" for="active">Actif</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                    <a href="/doctors/list" class="btn btn-secondary">Annuler</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{shared/layout}">
+
+<head>
+    <title>Doctor Details</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0" th:text="${doctor.firstName + ' ' + doctor.lastName}">Doctor Name</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item"><a href="/doctors/list">Médecins</a></li>
+                            <li class="breadcrumb-item active">Détails Médecin</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Informations du Médecin</h3>
+                                <div class="card-tools">
+                                    <a th:href="@{/doctors/edit/{id}(id=${doctor.id})}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>ID Médecin:</strong> <span th:text="${doctor.doctorId}">ID</span></p>
+                                        <p><strong>Prénom:</strong> <span th:text="${doctor.firstName}">Prénom</span>
+                                        </p>
+                                        <p><strong>Nom:</strong> <span th:text="${doctor.lastName}">Nom</span></p>
+                                        <p><strong>Spécialisation:</strong> <span
+                                                th:text="${doctor.specialization}">Spécialisation</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Email:</strong> <span th:text="${doctor.email}">Email</span></p>
+                                        <p><strong>Téléphone:</strong> <span th:text="${doctor.phone}">Téléphone</span>
+                                        </p>
+                                        <p th:if="${doctor.workingDays != null && !doctor.workingDays.isEmpty()}">
+                                            <strong>Jours de Travail:</strong> <span
+                                                th:text="${#strings.listJoin(doctor.workingDays, ', ')}">Jours</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <p>
+                                    <strong>Statut:</strong>
+                                    <span th:if="${doctor.active}" class="badge badge-success">Actif</span>
+                                    <span th:unless="${doctor.active}" class="badge badge-danger">Inactif</span>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/doctors/list" class="btn btn-secondary">Retour à la Liste</a>
+                                <a th:href="@{/doctors/delete/{id}(id=${doctor.id})}" class="btn btn-danger float-right"
+                                    onclick="return confirm('Êtes-vous sûr?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

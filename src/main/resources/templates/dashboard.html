@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html layout:decorate="~{shared/layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0 text-dark">Dashboard</h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <!-- Small boxes (Stat box) -->
+                <div class="row">
+                    <!-- Patients Count -->
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3 id="patientCount">0</h3>
+
+                                <p>Total Patients</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <a class="small-box-footer" href="/patients/list">View All <i
+                                    class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <!-- ./col -->
+
+                    <!-- Doctors Count -->
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3 id="doctorCount">0</h3>
+
+                                <p>Total Doctors</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <a class="small-box-footer" href="/doctors/list">View All <i
+                                    class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <!-- ./col -->
+
+                    <!-- Appointments Count -->
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3 id="appointmentCount">0</h3>
+
+                                <p>Total Appointments</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <a class="small-box-footer" href="/appointments/list">View All <i
+                                    class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <!-- ./col -->
+
+                    <!-- Last Updated -->
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-danger">
+                            <div class="inner">
+                                <h3 style="font-size: 20px" id="lastUpdated">Now</h3>
+
+                                <p>Last Updated</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <a class="small-box-footer" href="javascript:void(0);" onclick="loadStats()">Refresh <i
+                                    class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <!-- ./col -->
+                </div>
+                <!-- /.row -->
+            </div>
+        </section>
+        <!-- End Main content -->
+
+
+    </div>
+
+    <th:block layout:fragment="script">
+        <script>
+            // Function to load statistics from API
+            function loadStats() {
+                fetch('/api/stats/counts')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update the counts
+                        document.getElementById('patientCount').textContent = data.patientCount;
+                        document.getElementById('doctorCount').textContent = data.doctorCount;
+                        document.getElementById('appointmentCount').textContent = data.appointmentCount;
+
+                        // Update the last updated time
+                        const now = new Date();
+                        const timeString = now.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+                        document.getElementById('lastUpdated').textContent = timeString;
+
+                        console.log('Stats loaded:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error loading stats:', error);
+                    });
+            }
+
+            // Load stats on page load
+            document.addEventListener('DOMContentLoaded', function () {
+                loadStats();
+
+                // Auto-refresh every 30 seconds (30000 milliseconds)
+                setInterval(loadStats, 30000);
+            });
+        </script>
+    </th:block>
+
+</body>
+
+</html>

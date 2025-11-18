@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{shared/layout}">
+
+<head>
+    <title>Appointment Details</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0" th:text="'Appointment ' + ${appointment.appointmentId}">Appointment Details</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item"><a href="/appointments/list">Rendez-vous</a></li>
+                            <li class="breadcrumb-item active">Détails Rendez-vous</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Informations du Rendez-vous</h3>
+                                <div class="card-tools">
+                                    <a th:href="@{/appointments/edit/{id}(id=${appointment.id})}"
+                                        class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>ID Rendez-vous:</strong> <span
+                                                th:text="${appointment.appointmentId}">ID</span></p>
+                                        <p><strong>Patient:</strong> <span
+                                                th:text="${appointment.patientName}">Patient</span></p>
+                                        <p><strong>Médecin:</strong> <span
+                                                th:text="${appointment.doctorName}">Médecin</span></p>
+                                        <p><strong>Spécialisation:</strong> <span
+                                                th:text="${appointment.doctorSpecialization}">Spécialisation</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Date:</strong> <span th:text="${appointment.date}">Date</span></p>
+                                        <p><strong>Heure:</strong> <span th:text="${appointment.time}">Heure</span></p>
+                                        <p><strong>Statut:</strong>
+                                            <span th:if="${appointment.status == 'Planifié'}"
+                                                class="badge badge-info">Planifié</span>
+                                            <span th:if="${appointment.status == 'Terminé'}"
+                                                class="badge badge-success">Terminé</span>
+                                            <span th:if="${appointment.status == 'Annulé'}"
+                                                class="badge badge-danger">Annulé</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <p><strong>Remarques:</strong></p>
+                                <p th:text="${appointment.remarks}">Remarques</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/appointments/list" class="btn btn-secondary">Retour à la Liste</a>
+                                <a th:href="@{/appointments/delete/{id}(id=${appointment.id})}"
+                                    class="btn btn-danger float-right" onclick="return confirm('Êtes-vous sûr?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

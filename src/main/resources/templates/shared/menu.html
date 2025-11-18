@@ -1,0 +1,130 @@
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a class="brand-link" href="/">
+        <img alt="GRH Logo" class="brand-image img-circle elevation-3"
+            src="/webjars/AdminLTE/3.2.0/dist/img/AdminLTELogo.png" style="opacity: .8">
+        <span class="brand-text font-weight-light">Système GRH</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <img alt="User Image" class="img-circle elevation-2"
+                    src="/webjars/AdminLTE/3.2.0/dist/img/user2-160x160.jpg">
+            </div>
+            <div class="info">
+                <a class="d-block" href="#">Admin Hôpital</a>
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-accordion="false" data-widget="treeview" role="menu">
+
+                <!-- Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>Tableau de Bord</p>
+                    </a>
+                </li>
+
+                <!-- Patients Management -->
+                <li class="nav-item has-treeview">
+                    <a class="nav-link" href="#">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>
+                            Patients
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/patients/list">
+                                <i class="far fa-list-alt nav-icon"></i>
+                                <p>Liste des Patients</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/patients/add">
+                                <i class="far fa-plus-square nav-icon"></i>
+                                <p>Ajouter Patient</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Doctors Management -->
+                <li class="nav-item has-treeview">
+                    <a class="nav-link" href="#">
+                        <i class="nav-icon fas fa-stethoscope"></i>
+                        <p>
+                            Médecins
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/doctors/list">
+                                <i class="far fa-list-alt nav-icon"></i>
+                                <p>Liste des Médecins</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/doctors/add">
+                                <i class="far fa-plus-square nav-icon"></i>
+                                <p>Ajouter Médecin</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Appointments Management -->
+                <li class="nav-item has-treeview">
+                    <a class="nav-link" href="#">
+                        <i class="nav-icon fas fa-calendar-check"></i>
+                        <p>
+                            Rendez-vous
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointments/list">
+                                <i class="far fa-list-alt nav-icon"></i>
+                                <p>Liste des Rendez-vous</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointments/add">
+                                <i class="far fa-plus-square nav-icon"></i>
+                                <p>Planifier Rendez-vous</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Settings Section -->
+                <li class="nav-header">COMPTE</li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="/about">
+                        <i class="nav-icon fas fa-info-circle"></i>
+                        <p>À Propos</p>
+                    </a>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                        <p>Déconnexion</p>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
