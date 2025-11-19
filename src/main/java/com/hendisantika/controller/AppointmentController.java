@@ -183,7 +183,7 @@ public class AppointmentController {
     @GetMapping("/delete/{id}")
     public String supprimerRendezVous(@PathVariable String id) {
         appointmentRepository.deleteById(id);
-        return "redirect:/appointments/list";
+        return "redirect:/calendar#calendar";
     }
 
     /**
