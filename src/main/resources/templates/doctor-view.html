@@ -68,7 +68,7 @@
                                 </p>
                             </div>
                             <div class="card-footer">
-                                <a href="/doctors/list" class="btn btn-secondary">Retour à la Liste</a>
+                                <a href="javascript:history.back()" class="btn btn-secondary">Retour</a>
                                 <a th:href="@{/doctors/delete/{id}(id=${doctor.id})}" class="btn btn-danger float-right"
                                     onclick="return confirm('Êtes-vous sûr?')">
                                     <i class="fas fa-trash"></i> Supprimer

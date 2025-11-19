@@ -29,7 +29,7 @@ public class PatientController {
      * Display all patients
      */
     @GetMapping("/list")
-    public String listPatients(Model model) {
+    public String listerTousLesPatients(Model model) {
         List<Patient> patients = patientRepository.findAll();
         model.addAttribute("patients", patients);
         return "patient-list";
@@ -39,7 +39,7 @@ public class PatientController {
      * Show form to add new patient
      */
     @GetMapping("/add")
-    public String showAddPatientForm(Model model) {
+    public String afficherFormulaireAjouterPatient(Model model) {
         model.addAttribute("patient", new Patient());
         return "patient-add";
     }
@@ -48,7 +48,7 @@ public class PatientController {
      * Save new patient
      */
     @PostMapping("/save")
-    public String savePatient(@ModelAttribute Patient patient) {
+    public String ajouterPatient(@ModelAttribute Patient patient) {
         patient.setPatientId(sequenceService.getNextSequenceId("patient_seq", "P"));
         patient.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         patient.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
@@ -60,7 +60,7 @@ public class PatientController {
      * Edit existing patient
      */
     @GetMapping("/edit/{id}")
-    public String showEditPatientForm(@PathVariable String id, Model model) {
+    public String afficherFormulaireModifierPatient(@PathVariable String id, Model model) {
         Optional<Patient> patient = patientRepository.findById(id);
         if (patient.isPresent()) {
             model.addAttribute("patient", patient.get());
@@ -73,7 +73,7 @@ public class PatientController {
      * Update patient
      */
     @PostMapping("/update")
-    public String updatePatient(@ModelAttribute Patient patient) {
+    public String modifierPatient(@ModelAttribute Patient patient) {
         // Preserve existing data
         Optional<Patient> existingPatient = patientRepository.findById(patient.getId());
         if (existingPatient.isPresent()) {
@@ -90,7 +90,7 @@ public class PatientController {
      * Delete patient
      */
     @GetMapping("/delete/{id}")
-    public String deletePatient(@PathVariable String id) {
+    public String supprimerPatient(@PathVariable String id) {
         patientRepository.deleteById(id);
         return "redirect:/patients/list";
     }
@@ -99,7 +99,7 @@ public class PatientController {
      * View patient details
      */
     @GetMapping("/view/{id}")
-    public String viewPatient(@PathVariable String id, Model model) {
+    public String rechercherPatientParId(@PathVariable String id, Model model) {
         Optional<Patient> patient = patientRepository.findById(id);
         if (patient.isPresent()) {
             model.addAttribute("patient", patient.get());
@@ -113,7 +113,7 @@ public class PatientController {
      */
     @GetMapping("/api/search")
     @ResponseBody
-    public ResponseEntity<List<Patient>> searchPatients(@RequestParam String query) {
+    public ResponseEntity<List<Patient>> rechercherPatients(@RequestParam String query) {
         List<Patient> allPatients = patientRepository.findAll();
         String lowerQuery = query.toLowerCase();
         

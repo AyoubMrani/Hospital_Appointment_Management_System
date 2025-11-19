@@ -39,7 +39,7 @@ public class AppointmentController {
      * Display all appointments
      */
     @GetMapping("/list")
-    public String listAppointments(Model model) {
+    public String listerTousLesRendezVous(Model model) {
         List<Appointment> appointments = appointmentRepository.findAll();
         model.addAttribute("appointments", appointments);
         return "appointment-list";
@@ -49,7 +49,7 @@ public class AppointmentController {
      * Get appointments by date
      */
     @GetMapping("/by-date/{date}")
-    public String getAppointmentsByDate(@PathVariable String date, Model model) {
+    public String afficherRendezVousParDate(@PathVariable String date, Model model) {
         List<Appointment> appointments = appointmentRepository.findByDate(date);
         model.addAttribute("appointments", appointments);
         model.addAttribute("date", date);
@@ -60,7 +60,7 @@ public class AppointmentController {
      * Get appointments by doctor
      */
     @GetMapping("/doctor/{doctorId}")
-    public String getAppointmentsByDoctor(@PathVariable String doctorId, Model model) {
+    public String afficherRendezVousParMedecin(@PathVariable String doctorId, Model model) {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
         Optional<Doctor> doctor = doctorRepository.findById(doctorId);
         model.addAttribute("appointments", appointments);
@@ -72,7 +72,7 @@ public class AppointmentController {
      * Get appointments by patient
      */
     @GetMapping("/patient/{patientId}")
-    public String getAppointmentsByPatient(@PathVariable String patientId, Model model) {
+    public String afficherRendezVousParPatient(@PathVariable String patientId, Model model) {
         List<Appointment> appointments = appointmentRepository.findByPatientId(patientId);
         Optional<Patient> patient = patientRepository.findById(patientId);
         model.addAttribute("appointments", appointments);
@@ -84,7 +84,7 @@ public class AppointmentController {
      * Show form to add new appointment
      */
     @GetMapping("/add")
-    public String showAddAppointmentForm(Model model) {
+    public String afficherFormulaireReserverRendezVous(Model model) {
         List<Patient> patients = patientRepository.findAll();
         List<Doctor> doctors = doctorRepository.findAll();
         model.addAttribute("appointment", new Appointment());
@@ -97,35 +97,35 @@ public class AppointmentController {
      * Save new appointment
      */
     @PostMapping("/save")
-    public String saveAppointment(@ModelAttribute Appointment appointment) {
+    public String reserverRendezVous(@ModelAttribute Appointment appointment) {
         appointment.setAppointmentId(sequenceService.getNextSequenceId("appointment_seq", "A"));
         appointment.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         appointment.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
         appointment.setStatus("Planifié");
-        
+
         // Fetch and set patient and doctor names
         Optional<Patient> patient = patientRepository.findById(appointment.getPatientId());
         if (patient.isPresent()) {
             Patient p = patient.get();
             appointment.setPatientName(p.getFirstName() + " " + p.getLastName());
         }
-        
+
         Optional<Doctor> doctor = doctorRepository.findById(appointment.getDoctorId());
         if (doctor.isPresent()) {
             Doctor d = doctor.get();
             appointment.setDoctorName(d.getFirstName() + " " + d.getLastName());
             appointment.setDoctorSpecialization(d.getSpecialization());
         }
-        
+
         appointmentRepository.save(appointment);
-        return "redirect:/appointments/list";
+        return "redirect:/calendar";
     }
 
     /**
      * Edit existing appointment
      */
     @GetMapping("/edit/{id}")
-    public String showEditAppointmentForm(@PathVariable String id, Model model) {
+    public String afficherFormulaireModifierRendezVous(@PathVariable String id, Model model) {
         Optional<Appointment> appointment = appointmentRepository.findById(id);
         if (appointment.isPresent()) {
             List<Patient> patients = patientRepository.findAll();
@@ -142,7 +142,7 @@ public class AppointmentController {
      * Update appointment
      */
     @PostMapping("/update")
-    public String updateAppointment(@ModelAttribute Appointment appointment) {
+    public String modifierRendezVous(@ModelAttribute Appointment appointment) {
         // Preserve existing data
         Optional<Appointment> existingAppointment = appointmentRepository.findById(appointment.getId());
         if (existingAppointment.isPresent()) {
@@ -164,7 +164,7 @@ public class AppointmentController {
      * Cancel appointment
      */
     @PostMapping("/cancel/{id}")
-    public String cancelAppointment(@PathVariable String id, @RequestParam String reason) {
+    public String annulerRendezVous(@PathVariable String id, @RequestParam String reason) {
         Optional<Appointment> appointment = appointmentRepository.findById(id);
         if (appointment.isPresent()) {
             Appointment app = appointment.get();
@@ -181,7 +181,7 @@ public class AppointmentController {
      * Delete appointment
      */
     @GetMapping("/delete/{id}")
-    public String deleteAppointment(@PathVariable String id) {
+    public String supprimerRendezVous(@PathVariable String id) {
         appointmentRepository.deleteById(id);
         return "redirect:/appointments/list";
     }
@@ -190,7 +190,7 @@ public class AppointmentController {
      * View appointment details
      */
     @GetMapping("/view/{id}")
-    public String viewAppointment(@PathVariable String id, Model model) {
+    public String afficherRendezVousParMedecinEtDate(@PathVariable String id, Model model) {
         Optional<Appointment> appointment = appointmentRepository.findById(id);
         if (appointment.isPresent()) {
             model.addAttribute("appointment", appointment.get());
@@ -203,7 +203,7 @@ public class AppointmentController {
      * Mark appointment as completed
      */
     @GetMapping("/complete/{id}")
-    public String completeAppointment(@PathVariable String id) {
+    public String trouverCreneauxDisponibles(@PathVariable String id) {
         Optional<Appointment> appointment = appointmentRepository.findById(id);
         if (appointment.isPresent()) {
             Appointment app = appointment.get();
@@ -219,10 +219,10 @@ public class AppointmentController {
      */
     @GetMapping("/api/search")
     @ResponseBody
-    public ResponseEntity<List<Appointment>> searchAppointments(@RequestParam String query) {
+    public ResponseEntity<List<Appointment>> rechercherRendezVous(@RequestParam String query) {
         List<Appointment> allAppointments = appointmentRepository.findAll();
         String lowerQuery = query.toLowerCase();
-        
+
         List<Appointment> results = allAppointments.stream()
                 .filter(a -> a.getPatientName().toLowerCase().contains(lowerQuery) ||
                         a.getDoctorName().toLowerCase().contains(lowerQuery) ||
@@ -230,7 +230,7 @@ public class AppointmentController {
                         a.getDate().toLowerCase().contains(lowerQuery) ||
                         a.getStatus().toLowerCase().contains(lowerQuery))
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(results);
     }
 }

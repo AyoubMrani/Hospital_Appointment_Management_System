@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.utraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+    layout:decorate="~{shared/layout}">
+
+<head>
+    <title>Calendrier des Rendez-vous - GRH Hospital</title>
+
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+
+    <style>
+        #calendar {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+            font-size: 0.95em;
+        }
+
+        .fc {
+            --fc-page-bg-color: #f4f4f4;
+            --fc-neutral-bg-color: #ffffff;
+            --fc-neutral-text-color: #333;
+            --fc-border-color: #ddd;
+        }
+
+        .fc .fc-button-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .fc .fc-button-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .fc .fc-daygrid-day.fc-day-today {
+            background-color: #e3f2fd;
+        }
+
+        .fc .fc-event {
+            border: none;
+            padding: 2px 4px;
+            cursor: pointer;
+        }
+
+        .fc .fc-event:hover {
+            opacity: 0.8;
+        }
+
+        .calendar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            font-size: 1.8em !important;
+        }
+
+        .calendar-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .calendar-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .status-planifié {
+            background-color: #3498db;
+        }
+
+        .status-terminé {
+            background-color: #27ae60;
+        }
+
+        .status-annulé {
+            background-color: #e74c3c;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions a {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .quick-actions a:hover {
+            background: #0056b3;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .form-group.hidden {
+            display: none;
+        }
+
+        /* Search Styles */
+        #searchInput {
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: #667eea !important;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-result-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-patient {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .search-result-doctor {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .search-result-datetime {
+            font-size: 0.85em;
+            color: #999;
+        }
+
+        .search-result-status {
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        .search-no-results {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-header h2 {
+                font-size: 1.4em;
+            }
+
+            .legend {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #calendar {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>📅 Calendrier des Rendez-vous</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item active">Calendrier</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+
+                <!-- Header Info -->
+                <div class="calendar-header">
+                    <h2>📆 Gestion des Rendez-vous</h2>
+                    <p>Visualisez tous vos rendez-vous dans un calendrier interactif</p>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="#" onclick="openAddAppointmentModal(); return false;">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </a>
+                    <a href="/appointments/list">
+                        <i class="fas fa-list"></i> Liste des Rendez-vous
+                    </a>
+                </div>
+
+                <!-- Search Bar -->
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="searchInput"
+                        placeholder="🔍 Rechercher un rendez-vous (patient, médecin, ID...)"
+                        style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 0.95em; transition: all 0.3s;">
+                </div>
+
+                <!-- Search Results -->
+                <div id="searchResults"
+                    style="display: none; margin-bottom: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
+                    <div style="padding: 20px;">
+                        <h4 style="margin-top: 0; color: #667eea;">Résultats de la Recherche</h4>
+                        <div id="searchResultsList" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Results will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color status-planifié"></div>
+                        <span>Planifié</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color status-terminé"></div>
+                        <span>Terminé</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color status-annulé"></div>
+                        <span>Annulé</span>
+                    </div>
+                </div>
+
+                <!-- Calendar Container -->
+                <div class="calendar-container">
+                    <div id="calendar"></div>
+                </div>
+
+                <!-- Add Appointment Modal -->
+                <div id="addAppointmentModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>📅 Ajouter un Rendez-vous</h3>
+                            <button class="modal-close" onclick="closeAddAppointmentModal()">&times;</button>
+                        </div>
+
+                        <form id="appointmentForm" onsubmit="submitAppointmentForm(event)">
+                            <!-- Patient Selection -->
+                            <div class="form-group">
+                                <label for="patientId">Patient <span style="color: #e74c3c;">*</span></label>
+                                <select id="patientId" name="patientId" required>
+                                    <option value="">-- Sélectionner un patient --</option>
+                                </select>
+                            </div>
+
+                            <!-- Doctor Selection -->
+                            <div class="form-group">
+                                <label for="doctorId">Médecin <span style="color: #e74c3c;">*</span></label>
+                                <select id="doctorId" name="doctorId" required>
+                                    <option value="">-- Sélectionner un médecin --</option>
+                                </select>
+                            </div>
+
+                            <!-- Date and Time Row -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="date">Date <span style="color: #e74c3c;">*</span></label>
+                                    <input type="date" id="date" name="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="time">Heure <span style="color: #e74c3c;">*</span></label>
+                                    <input type="time" id="time" name="time" required>
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="form-group">
+                                <label for="status">Statut</label>
+                                <select id="status" name="status">
+                                    <option value="Planifié">Planifié</option>
+                                    <option value="Terminé">Terminé</option>
+                                    <option value="Annulé">Annulé</option>
+                                </select>
+                            </div>
+
+                            <!-- Remarks -->
+                            <div class="form-group">
+                                <label for="remarks">Remarques</label>
+                                <textarea id="remarks" name="remarks" rows="3"
+                                    placeholder="Notes ou observations..."></textarea>
+                            </div>
+
+                            <!-- Hidden form field to identify this as modal submission -->
+                            <input type="hidden" name="isModal" value="true">
+
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secondary"
+                                    onclick="closeAddAppointmentModal(); history.back();">
+                                    Annuler
+                                </button>
+                                <button type="submit" class="btn-primary">
+                                    Ajouter Rendez-vous
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FullCalendar Scripts -->
+    <div layout:fragment="script">
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+        <script>
+            // Modal Functions
+            function openAddAppointmentModal() {
+                document.getElementById('addAppointmentModal').classList.add('show');
+                loadPatientsAndDoctors();
+                // Set today's date as default
+                document.getElementById('date').valueAsDate = new Date();
+            }
+
+            function closeAddAppointmentModal() {
+                document.getElementById('addAppointmentModal').classList.remove('show');
+                document.getElementById('appointmentForm').reset();
+            }
+
+            // Load patients and doctors into dropdowns
+            function loadPatientsAndDoctors() {
+                // Load patients
+                fetch('/patients/api/search?query=')
+                    .then(response => response.json())
+                    .then(data => {
+                        const select = document.getElementById('patientId');
+                        select.innerHTML = '<option value="">-- Sélectionner un patient --</option>';
+                        data.forEach(patient => {
+                            const option = document.createElement('option');
+                            option.value = patient.id;
+                            option.textContent = patient.firstName + ' ' + patient.lastName + ' (' + patient.patientId + ')';
+                            select.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error loading patients:', error));
+
+                // Load doctors
+                fetch('/doctors/api/search?query=')
+                    .then(response => response.json())
+                    .then(data => {
+                        const select = document.getElementById('doctorId');
+                        select.innerHTML = '<option value="">-- Sélectionner un médecin --</option>';
+                        data.forEach(doctor => {
+                            const option = document.createElement('option');
+                            option.value = doctor.id;
+                            option.textContent = doctor.firstName + ' ' + doctor.lastName + ' (' + doctor.specialization + ')';
+                            select.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error loading doctors:', error));
+            }
+
+            // Submit appointment form
+            function submitAppointmentForm(event) {
+                event.preventDefault();
+
+                const formData = new FormData(document.getElementById('appointmentForm'));
+                const data = {
+                    patientId: formData.get('patientId'),
+                    doctorId: formData.get('doctorId'),
+                    date: formData.get('date'),
+                    time: formData.get('time'),
+                    status: formData.get('status'),
+                    remarks: formData.get('remarks')
+                };
+
+                fetch('/appointments/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Show success message
+                            Swal.fire({
+                                title: 'Succès!',
+                                text: 'Rendez-vous créé avec succès!',
+                                icon: 'success',
+                                confirmButtonColor: '#667eea',
+                                confirmButtonText: 'OK',
+                                timer: 3000,
+                                timerProgressBar: false
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/calendar';
+                                }
+                                window.location.href = '/calendar';
+                            });
+                            closeAddAppointmentModal();
+                        } else {
+                            alert('✗ Erreur lors de la création du rendez-vous');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('✗ Erreur: ' + error);
+                    });
+            }
+
+            // Close modal when clicking outside of it
+            window.onclick = function (event) {
+                const modal = document.getElementById('addAppointmentModal');
+                if (event.target == modal) {
+                    closeAddAppointmentModal();
+                }
+            }
+
+            // Live search functionality
+            let allAppointments = [];
+
+            document.getElementById('searchInput').addEventListener('input', function (e) {
+                const query = e.target.value.toLowerCase().trim();
+                const searchResults = document.getElementById('searchResults');
+                const searchResultsList = document.getElementById('searchResultsList');
+
+                if (query.length === 0) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+
+                // Filter appointments based on search query
+                const filtered = allAppointments.filter(apt => {
+                    if (!apt) return false;
+
+                    const patientName = (apt.patientName || '').toLowerCase();
+                    const doctorName = (apt.doctorName || '').toLowerCase();
+                    const appointmentId = (apt.appointmentId || '').toLowerCase();
+                    const specialization = (apt.specialization || '').toLowerCase();
+                    const date = (apt.date || '').toLowerCase();
+
+                    return patientName.includes(query) ||
+                        doctorName.includes(query) ||
+                        appointmentId.includes(query) ||
+                        specialization.includes(query) ||
+                        date.includes(query);
+                });
+
+                // Display search results
+                if (filtered.length === 0) {
+                    searchResultsList.innerHTML = '<div class="search-no-results">Aucun rendez-vous trouvé</div>';
+                } else {
+                    searchResultsList.innerHTML = filtered.map(apt => {
+                        const statusColor = {
+                            'Planifié': '#3498db',
+                            'Terminé': '#27ae60',
+                            'Annulé': '#e74c3c'
+                        }[apt.status] || '#95a5a6';
+
+                        return `
+                            <div class="search-result-item" onclick="window.location.href='/appointments/view/${apt.id}'">
+                                <div class="search-result-info">
+                                    <div class="search-result-patient">👤 ${apt.patientName || 'N/A'}</div>
+                                    <div class="search-result-doctor">🏥 ${apt.doctorName || 'N/A'} - ${apt.specialization || 'N/A'}</div>
+                                    <div class="search-result-datetime">📅 ${apt.date || 'N/A'} à ${apt.time || 'N/A'}</div>
+                                </div>
+                                <div class="search-result-status">
+                                    <span style="background-color: ${statusColor}; color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.85em; display: inline-block;">
+                                        ${apt.status || 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                searchResults.style.display = 'block';
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('#searchInput') && !e.target.closest('#searchResults')) {
+                    document.getElementById('searchResults').style.display = 'none';
+                }
+            });
+
+            // FullCalendar initialization
+            document.addEventListener('DOMContentLoaded', function () {
+                var calendarEl = document.getElementById('calendar');
+
+                // Fetch all appointments for search functionality
+                fetch('/appointments/api/search?query=')
+                    .then(response => response.json())
+                    .then(data => {
+                        allAppointments = data.map(apt => ({
+                            id: apt.id,
+                            appointmentId: apt.appointmentId || '',
+                            patientName: apt.patientName || '',
+                            doctorName: apt.doctorName || '',
+                            specialization: apt.doctorSpecialization || '',
+                            date: apt.date || '',
+                            time: apt.time || '',
+                            status: apt.status || ''
+                        }));
+                    })
+                    .catch(error => console.error('Error loading appointments:', error));
+
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today addEventButton',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                    },
+                    customButtons: {
+                        addEventButton: {
+                            text: '+ Ajouter',
+                            click: function () {
+                                openAddAppointmentModal();
+                            }
+                        }
+                    },
+                    locale: 'fr',
+                    height: 'auto',
+                    contentHeight: 'auto',
+                    nowIndicator: true,
+                    editable: false,
+                    selectable: false,
+
+                    // Load events from API
+                    events: function (info, successCallback, failureCallback) {
+                        fetch('/calendar/api/events')
+                            .then(response => response.json())
+                            .then(data => {
+                                // Transform data to FullCalendar format
+                                const events = data.map(event => ({
+                                    id: event.id,
+                                    title: event.title,
+                                    start: event.start,
+                                    backgroundColor: event.backgroundColor,
+                                    borderColor: event.backgroundColor,
+                                    extendedProps: {
+                                        doctor: event.extendedProps
+                                    }
+                                }));
+                                successCallback(events);
+                            })
+                            .catch(error => {
+                                console.error('Error loading events:', error);
+                                failureCallback(error);
+                            });
+                    },
+
+                    // Event click handler
+                    eventClick: function (info) {
+                        var appointmentId = info.event.id;
+
+                        Swal.fire({
+                            title: 'Actions du Rendez-vous',
+                            icon: 'info',
+                            html: `
+                                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                                    <button id="btnShow" class="swal2-styled" style="background-color: #95a5a6; border-radius: 5px; padding: 10px 20px; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-eye"></i> Afficher
+                                    </button>
+                                    <button id="btnEdit" class="swal2-styled" style="background-color: #f39c12; border-radius: 5px; padding: 10px 20px; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-pen"></i> Modifier
+                                    </button>
+                                    <button id="btnDelete" class="swal2-styled" style="background-color: #e74c3c; border-radius: 5px; padding: 10px 20px; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </div>
+                            `,
+                            showConfirmButton: false,
+                            didOpen: function () {
+                                document.getElementById('btnShow').addEventListener('click', function () {
+                                    window.location.href = '/appointments/view/' + appointmentId;
+                                });
+
+                                document.getElementById('btnEdit').addEventListener('click', function () {
+                                    window.location.href = '/appointments/edit/' + appointmentId;
+                                });
+
+                                document.getElementById('btnDelete').addEventListener('click', function () {
+                                    Swal.fire({
+                                        title: 'Confirmer la suppression',
+                                        text: 'Êtes-vous sûr de vouloir supprimer ce rendez-vous ?',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#e74c3c',
+                                        cancelButtonColor: '#95a5a6',
+                                        confirmButtonText: 'Oui, supprimer',
+                                        cancelButtonText: 'Annuler'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.href = '/appointments/delete/' + appointmentId;
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    },
+
+                    // Styling
+                    eventDisplay: 'block',
+                    slotLabelFormat: {
+                        meridiem: 'short',
+                        meridiem: false,
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    },
+
+                    // Internationalization
+                    buttonText: {
+                        today: "Aujourd'hui",
+                        month: 'Mois',
+                        week: 'Semaine',
+                        day: 'Jour',
+                        list: 'Agenda'
+                    },
+
+                    datesSet: function (info) {
+                        // Optional: Handle date range changes
+                        console.log('Date range changed:', info.startStr, 'to', info.endStr);
+                    }
+                });
+
+                calendar.render();
+
+                // Handle window resize
+                window.addEventListener('resize', function () {
+                    calendar.updateSize();
+                });
+            });
+        </script>
+
+        <!-- Load French locale for FullCalendar -->
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/fr.global.min.js"></script>
+    </div>
+
+</body>
+
+</html>

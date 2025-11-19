@@ -29,7 +29,7 @@ public class DoctorController {
      * Display all doctors
      */
     @GetMapping("/list")
-    public String listDoctors(Model model) {
+    public String listerTousLesMedecins(Model model) {
         List<Doctor> doctors = doctorRepository.findAll();
         model.addAttribute("doctors", doctors);
         return "doctor-list";
@@ -39,7 +39,7 @@ public class DoctorController {
      * Filter doctors by specialization
      */
     @GetMapping("/specialization/{specialization}")
-    public String getDoctorsBySpecialization(@PathVariable String specialization, Model model) {
+    public String rechercherMedecinParSpecialite(@PathVariable String specialization, Model model) {
         List<Doctor> doctors = doctorRepository.findBySpecialization(specialization);
         model.addAttribute("doctors", doctors);
         model.addAttribute("specialization", specialization);
@@ -50,7 +50,7 @@ public class DoctorController {
      * Show form to add new doctor
      */
     @GetMapping("/add")
-    public String showAddDoctorForm(Model model) {
+    public String afficherFormulaireAjouterMedecin(Model model) {
         model.addAttribute("doctor", new Doctor());
         return "doctor-add";
     }
@@ -59,7 +59,7 @@ public class DoctorController {
      * Save new doctor
      */
     @PostMapping("/save")
-    public String saveDoctor(@ModelAttribute Doctor doctor) {
+    public String ajouterMedecin(@ModelAttribute Doctor doctor) {
         doctor.setDoctorId(sequenceService.getNextSequenceId("doctor_seq", "D"));
         doctor.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         doctor.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
@@ -71,7 +71,7 @@ public class DoctorController {
      * Edit existing doctor
      */
     @GetMapping("/edit/{id}")
-    public String showEditDoctorForm(@PathVariable String id, Model model) {
+    public String afficherFormulaireModifierMedecin(@PathVariable String id, Model model) {
         Optional<Doctor> doctor = doctorRepository.findById(id);
         if (doctor.isPresent()) {
             model.addAttribute("doctor", doctor.get());
@@ -84,7 +84,7 @@ public class DoctorController {
      * Update doctor
      */
     @PostMapping("/update")
-    public String updateDoctor(@ModelAttribute Doctor doctor) {
+    public String modifierMedecin(@ModelAttribute Doctor doctor) {
         // Preserve existing data
         Optional<Doctor> existingDoctor = doctorRepository.findById(doctor.getId());
         if (existingDoctor.isPresent()) {
@@ -101,7 +101,7 @@ public class DoctorController {
      * Delete doctor
      */
     @GetMapping("/delete/{id}")
-    public String deleteDoctor(@PathVariable String id) {
+    public String supprimerMedecin(@PathVariable String id) {
         doctorRepository.deleteById(id);
         return "redirect:/doctors/list";
     }
@@ -110,7 +110,7 @@ public class DoctorController {
      * View doctor details
      */
     @GetMapping("/view/{id}")
-    public String viewDoctor(@PathVariable String id, Model model) {
+    public String rechercherMedecinParId(@PathVariable String id, Model model) {
         Optional<Doctor> doctor = doctorRepository.findById(id);
         if (doctor.isPresent()) {
             model.addAttribute("doctor", doctor.get());
@@ -124,7 +124,7 @@ public class DoctorController {
      */
     @GetMapping("/api/search")
     @ResponseBody
-    public ResponseEntity<List<Doctor>> searchDoctors(@RequestParam String query) {
+    public ResponseEntity<List<Doctor>> rechercherMedecins(@RequestParam String query) {
         List<Doctor> allDoctors = doctorRepository.findAll();
         String lowerQuery = query.toLowerCase();
         
