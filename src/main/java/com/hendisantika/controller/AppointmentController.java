@@ -118,7 +118,7 @@ public class AppointmentController {
         }
 
         appointmentRepository.save(appointment);
-        return "redirect:/calendar";
+        return "redirect:/calendar#calendar";
     }
 
     /**

@@ -4,6 +4,44 @@
 
 <head>
     <title>Patients</title>
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            flex-shrink: 0;
+            padding: 15px 0;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 0;
+        }
+
+        .content .container-fluid {
+            padding: 0;
+        }
+
+        .card {
+            margin: 0;
+            border-radius: 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .table-responsive {
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
