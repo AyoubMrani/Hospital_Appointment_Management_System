@@ -233,4 +233,119 @@ public class AppointmentController {
 
         return ResponseEntity.ok(results);
     }
+
+    /**
+     * API endpoint to check doctor availability
+     */
+    @GetMapping("/api/check-availability")
+    @ResponseBody
+    public ResponseEntity<AvailabilityResponse> checkDoctorAvailability(
+            @RequestParam String doctorId,
+            @RequestParam String date,
+            @RequestParam String time) {
+
+        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+
+        // Check if doctor exists
+        if (!doctorOpt.isPresent()) {
+            return ResponseEntity.ok(new AvailabilityResponse(false, "Médecin non trouvé"));
+        }
+
+        Doctor doctor = doctorOpt.get();
+
+        // Check if doctor is active
+        if (!doctor.isActive()) {
+            return ResponseEntity.ok(new AvailabilityResponse(false, "Le médecin est actuellement inactif"));
+        }
+
+        // Check if doctor works on this day using MongoDB workingDays
+        java.time.LocalDate appointmentDate = java.time.LocalDate.parse(date);
+        java.time.DayOfWeek dayOfWeek = appointmentDate.getDayOfWeek();
+        String dayName = dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.FRENCH);
+
+        // Check if working days are configured for the doctor
+        if (doctor.getWorkingDays() == null || doctor.getWorkingDays().isEmpty()) {
+            return ResponseEntity.ok(new AvailabilityResponse(false,
+                    "Aucun jour de travail configuré pour ce médecin"));
+        }
+
+        // Check if the selected day is in the doctor's working days
+        boolean isWorkingDay = doctor.getWorkingDays().stream()
+                .anyMatch(day -> day.equalsIgnoreCase(dayName));
+
+        if (!isWorkingDay) {
+            return ResponseEntity.ok(new AvailabilityResponse(false,
+                    "Le médecin ne travaille pas le " + dayName.toLowerCase(),
+                    doctor.getWorkingDays()));
+        }
+
+        // Check if doctor already has an appointment at this time
+        List<Appointment> existingAppointments = appointmentRepository.findByDoctorId(doctorId);
+
+        // Parse the requested time
+        java.time.LocalTime requestedTime = java.time.LocalTime.parse(time);
+
+        for (Appointment existingApt : existingAppointments) {
+            // Only check non-cancelled appointments
+            if (existingApt.getStatus().equals("Annulé")) {
+                continue;
+            }
+
+            // Check if it's the same date
+            if (existingApt.getDate().equals(date)) {
+                java.time.LocalTime existingTime = java.time.LocalTime.parse(existingApt.getTime());
+
+                // Check if there's a conflict at the exact same time
+                if (existingTime.equals(requestedTime)) {
+                    return ResponseEntity
+                            .ok(new AvailabilityResponse(false, "Le médecin a déjà un rendez-vous à cette heure"));
+                }
+
+                // Check for 10-minute gap
+                long minutesDifference = Math
+                        .abs(java.time.temporal.ChronoUnit.MINUTES.between(existingTime, requestedTime));
+                if (minutesDifference < 10) {
+                    return ResponseEntity.ok(new AvailabilityResponse(false,
+                            "Il doit y avoir un minimum de 10 minutes entre chaque rendez-vous du médecin. " +
+                                    "Rendez-vous existant: " + existingApt.getTime()));
+                }
+            }
+        }
+
+        // Doctor is available
+        return ResponseEntity.ok(new AvailabilityResponse(true, "Le médecin est disponible"));
+    }
+
+    /**
+     * Inner class for availability response
+     */
+    public static class AvailabilityResponse {
+        public boolean available;
+        public String message;
+        public List<String> workingDays;
+
+        public AvailabilityResponse(boolean available, String message) {
+            this.available = available;
+            this.message = message;
+            this.workingDays = null;
+        }
+
+        public AvailabilityResponse(boolean available, String message, List<String> workingDays) {
+            this.available = available;
+            this.message = message;
+            this.workingDays = workingDays;
+        }
+
+        public boolean isAvailable() {
+            return available;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public List<String> getWorkingDays() {
+            return workingDays;
+        }
+    }
 }

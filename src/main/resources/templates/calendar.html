@@ -573,47 +573,96 @@
                 event.preventDefault();
 
                 const formData = new FormData(document.getElementById('appointmentForm'));
+                const doctorId = formData.get('doctorId');
+                const date = formData.get('date');
+                const time = formData.get('time');
                 const data = {
                     patientId: formData.get('patientId'),
-                    doctorId: formData.get('doctorId'),
-                    date: formData.get('date'),
-                    time: formData.get('time'),
+                    doctorId: doctorId,
+                    date: date,
+                    time: time,
                     status: formData.get('status'),
                     remarks: formData.get('remarks')
                 };
 
-                fetch('/appointments/save', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams(data)
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            // Show success message
+                // Check doctor availability first
+                fetch(`/appointments/api/check-availability?doctorId=${doctorId}&date=${date}&time=${time}`)
+                    .then(response => response.json())
+                    .then(availabilityResult => {
+                        if (!availabilityResult.available) {
+                            // Doctor not available - show error
+                            let alertHtml = availabilityResult.message;
+                            
+                            // If working days are provided, add them to the alert
+                            if (availabilityResult.workingDays && availabilityResult.workingDays.length > 0) {
+                                alertHtml += '<br><br><strong>Jours de travail disponibles:</strong><ul style="text-align: left; margin: 10px 0;">';
+                                availabilityResult.workingDays.forEach(day => {
+                                    alertHtml += '<li>' + day + '</li>';
+                                });
+                                alertHtml += '</ul>';
+                            }
+                            
                             Swal.fire({
-                                title: 'Succès!',
-                                text: 'Rendez-vous créé avec succès!',
-                                icon: 'success',
+                                title: 'Médecin Non Disponible',
+                                html: alertHtml,
+                                icon: 'warning',
                                 confirmButtonColor: '#667eea',
-                                confirmButtonText: 'OK',
-                                timer: 3000,
-                                timerProgressBar: false
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = '/calendar';
-                                }
-                                window.location.href = '/calendar';
+                                confirmButtonText: 'OK'
                             });
-                            closeAddAppointmentModal();
-                        } else {
-                            alert('✗ Erreur lors de la création du rendez-vous');
+                            return;
                         }
+
+                        // Doctor is available - proceed with appointment creation
+                        fetch('/appointments/save', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams(data)
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Show success message
+                                    Swal.fire({
+                                        title: 'Succès!',
+                                        text: 'Rendez-vous créé avec succès!',
+                                        icon: 'success',
+                                        confirmButtonColor: '#667eea',
+                                        confirmButtonText: 'OK',
+                                        timer: 3000,
+                                        timerProgressBar: false
+                                    }).then((result) => {
+                                        // Reload page to refresh calendar
+                                        location.reload();
+                                    });
+                                    closeAddAppointmentModal();
+                                } else {
+                                    Swal.fire({
+                                        title: 'Erreur',
+                                        text: 'Erreur lors de la création du rendez-vous',
+                                        icon: 'error',
+                                        confirmButtonColor: '#667eea'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Erreur',
+                                    text: 'Erreur: ' + error,
+                                    icon: 'error',
+                                    confirmButtonColor: '#667eea'
+                                });
+                            });
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        alert('✗ Erreur: ' + error);
+                        console.error('Availability check error:', error);
+                        Swal.fire({
+                            title: 'Erreur',
+                            text: 'Erreur lors de la vérification de disponibilité',
+                            icon: 'error',
+                            confirmButtonColor: '#667eea'
+                        });
                     });
             }
 
