@@ -3,7 +3,7 @@
     layout:decorate="~{shared/layout}">
 
 <head>
-    <title>Request Appointment</title>
+    <title>Demander un Rendez-vous</title>
 </head>
 
 <body>
@@ -13,12 +13,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0">Request an Appointment</h1>
+                        <h1 class="m-0">Demander un Rendez-vous</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="/">Home</a></li>
-                            <li class="breadcrumb-item active">Request Appointment</li>
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item active">Demander un Rendez-vous</li>
                         </ol>
                     </div>
                 </div>
@@ -32,16 +32,16 @@
                     <div class="col-md-8 offset-md-2">
                         <div class="card card-primary">
                             <div class="card-header">
-                                <h3 class="card-title">Appointment Request Form</h3>
+                                <h3 class="card-title">Formulaire de Demande de Rendez-vous</h3>
                             </div>
                             <form method="post" th:action="@{/appointment-requests/save}"
                                 th:object="${appointmentRequest}">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label for="doctorId">Select Doctor <span class="text-danger">*</span></label>
+                                        <label for="doctorId">Sélectionner un Médecin <span class="text-danger">*</span></label>
                                         <select class="form-control" id="doctorId" name="doctorId"
                                             th:field="*{doctorId}" required>
-                                            <option value="">-- Select a Doctor --</option>
+                                            <option value="">-- Sélectionner un Médecin --</option>
                                             <option th:each="doctor : ${doctors}" th:value="${doctor.id}"
                                                 th:text="${doctor.firstName + ' ' + doctor.lastName + ' (' + doctor.specialization + ')'}">
                                             </option>
@@ -50,13 +50,13 @@
 
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
-                                            <label for="appointmentDate">Preferred Date <span
+                                            <label for="appointmentDate">Date Préférée <span
                                                     class="text-danger">*</span></label>
                                             <input type="date" class="form-control" id="appointmentDate"
                                                 th:field="*{appointmentDate}" required>
                                         </div>
                                         <div class="form-group col-md-6">
-                                            <label for="appointmentTime">Preferred Time <span
+                                            <label for="appointmentTime">Heure Préférée <span
                                                     class="text-danger">*</span></label>
                                             <input type="time" class="form-control" id="appointmentTime"
                                                 th:field="*{appointmentTime}" required>
@@ -64,16 +64,16 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="reason">Reason for Appointment <span
+                                        <label for="reason">Raison de la Consultation <span
                                                 class="text-danger">*</span></label>
                                         <textarea class="form-control" id="reason" rows="4" th:field="*{reason}"
-                                            placeholder="Describe your reason for the appointment" required></textarea>
+                                            placeholder="Décrivez la raison de votre rendez-vous" required></textarea>
                                     </div>
                                 </div>
 
                                 <div class="card-footer">
-                                    <button type="submit" class="btn btn-primary">Submit Request</button>
-                                    <a href="/patients/list" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">Soumettre la Demande</button>
+                                    <a href="/patients/list" class="btn btn-secondary">Annuler</a>
                                 </div>
                             </form>
                         </div>

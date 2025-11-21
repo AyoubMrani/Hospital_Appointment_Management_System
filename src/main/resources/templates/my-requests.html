@@ -3,7 +3,7 @@
     layout:decorate="~{shared/layout}">
 
 <head>
-    <title>My Appointment Requests</title>
+    <title>Mes Demandes de Rendez-vous</title>
 </head>
 
 <body>
@@ -13,12 +13,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0">My Appointment Requests</h1>
+                        <h1 class="m-0">Mes Demandes de Rendez-vous</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="/">Home</a></li>
-                            <li class="breadcrumb-item active">My Requests</li>
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item active">Mes Demandes</li>
                         </ol>
                     </div>
                 </div>
@@ -32,24 +32,24 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Request List</h3>
+                                <h3 class="card-title">Liste des Demandes</h3>
                             </div>
                             <div class="card-body">
                                 <table class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Request ID</th>
-                                            <th>Doctor</th>
+                                            <th>ID Demande</th>
+                                            <th>Médecin</th>
                                             <th>Date</th>
-                                            <th>Time</th>
-                                            <th>Reason</th>
-                                            <th>Status</th>
+                                            <th>Heure</th>
+                                            <th>Raison</th>
+                                            <th>Statut</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr th:if="${requests.isEmpty()}">
-                                            <td colspan="7" class="text-center">No appointment requests found</td>
+                                            <td colspan="7" class="text-center">Aucune demande de rendez-vous trouvée</td>
                                         </tr>
                                         <tr th:each="request : ${requests}">
                                             <td th:text="${request.requestId}"></td>
@@ -59,15 +59,15 @@
                                             <td th:text="${request.reason}"></td>
                                             <td>
                                                 <span th:if="${request.status == 'PENDING'}"
-                                                    class="badge badge-warning">Pending</span>
+                                                    class="badge badge-warning">En attente</span>
                                                 <span th:if="${request.status == 'APPROVED'}"
-                                                    class="badge badge-success">Approved</span>
+                                                    class="badge badge-success">Approuvé</span>
                                                 <span th:if="${request.status == 'DENIED'}"
-                                                    class="badge badge-danger">Denied</span>
+                                                    class="badge badge-danger">Refusé</span>
                                             </td>
                                             <td>
                                                 <a th:href="@{/appointment-requests/view/{id}(id=${request.id})}"
-                                                    class="btn btn-sm btn-info">View</a>
+                                                    class="btn btn-sm btn-info">Voir</a>
                                             </td>
                                         </tr>
                                     </tbody>

@@ -3,7 +3,7 @@
     layout:decorate="~{shared/layout}">
 
 <head>
-    <title>Appointment Requests</title>
+    <title>Demandes de Rendez-vous</title>
     <style>
         .request-card {
             border-left: 4px solid #007bff;
@@ -31,12 +31,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0">Appointment Requests</h1>
+                        <h1 class="m-0">Demandes de Rendez-vous</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="/">Home</a></li>
-                            <li class="breadcrumb-item active">Requests</li>
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                            <li class="breadcrumb-item active">Demandes</li>
                         </ol>
                     </div>
                 </div>
@@ -54,17 +54,17 @@
                                 <ul class="nav nav-pills">
                                     <li class="nav-item">
                                         <a class="nav-link active" href="#pending" data-toggle="tab">
-                                            Pending
+                                            En attente
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="#approved" data-toggle="tab">
-                                            Approved
+                                            Approuvées
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="#denied" data-toggle="tab">
-                                            Denied
+                                            Refusées
                                         </a>
                                     </li>
                                 </ul>
@@ -74,7 +74,7 @@
                                     <!-- Pending Requests -->
                                     <div class="tab-pane fade show active" id="pending">
                                         <div th:if="${#lists.isEmpty(requests)}" class="alert alert-info">
-                                            No requests found
+                                            Aucune demande trouvée
                                         </div>
                                         <div th:each="request : ${requests}" th:if="${request.status == 'PENDING'}"
                                             class="card request-card pending">
@@ -87,11 +87,11 @@
                                                     <div class="col-md-6">
                                                         <p><strong>Date:</strong> <span
                                                                 th:text="${request.appointmentDate}"></span></p>
-                                                        <p><strong>Time:</strong> <span
+                                                        <p><strong>Heure:</strong> <span
                                                                 th:text="${request.appointmentTime}"></span></p>
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <p><strong>Reason:</strong></p>
+                                                        <p><strong>Raison:</strong></p>
                                                         <p th:text="${request.reason}"></p>
                                                     </div>
                                                 </div>
@@ -102,25 +102,26 @@
                                                             style="display: inline;">
                                                             <button type="submit"
                                                                 class="btn btn-success btn-sm btn-block">
-                                                                <i class="fas fa-check"></i> Approve
+                                                                <i class="fas fa-check"></i> Approuver
                                                             </button>
                                                         </form>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <a th:href="@{/appointment-requests/view/{id}(id=${request.id})}"
                                                             class="btn btn-info btn-sm btn-block">
-                                                            <i class="fas fa-eye"></i> View
+                                                            <i class="fas fa-eye"></i> Voir
                                                         </a>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <form method="post"
                                                             th:action="@{/appointment-requests/deny/{id}(id=${request.id})}"
                                                             style="display: inline;">
-                                                            <input type="hidden" name="denialReason" value="Denied by doctor">
+                                                            <input type="hidden" name="denialReason"
+                                                                value="Refusé par le médecin">
                                                             <button type="submit"
                                                                 class="btn btn-danger btn-sm btn-block"
-                                                                onclick="return confirm('Are you sure you want to deny this request?');">
-                                                                <i class="fas fa-times"></i> Deny
+                                                                onclick="return confirm('Êtes-vous sûr de vouloir refuser cette demande?');">
+                                                                <i class="fas fa-times"></i> Refuser
                                                             </button>
                                                         </form>
                                                     </div>
@@ -132,7 +133,7 @@
                                     <!-- Approved Requests -->
                                     <div class="tab-pane fade" id="approved">
                                         <div th:if="${#lists.isEmpty(requests)}" class="alert alert-info">
-                                            No approved requests
+                                            Aucune demande approuvée
                                         </div>
                                         <div th:each="request : ${requests}" th:if="${request.status == 'APPROVED'}"
                                             class="card request-card approved">
@@ -143,11 +144,11 @@
                                             <div class="card-body">
                                                 <p><strong>Date:</strong> <span
                                                         th:text="${request.appointmentDate}"></span></p>
-                                                <p><strong>Time:</strong> <span
+                                                <p><strong>Heure:</strong> <span
                                                         th:text="${request.appointmentTime}"></span></p>
-                                                <p><strong>Reason:</strong> <span th:text="${request.reason}"></span>
+                                                <p><strong>Raison:</strong> <span th:text="${request.reason}"></span>
                                                 </p>
-                                                <span class="badge badge-success">Approved on <span
+                                                <span class="badge badge-success">Approuvée le <span
                                                         th:text="${request.updatedAt}"></span></span>
                                             </div>
                                         </div>
@@ -156,7 +157,7 @@
                                     <!-- Denied Requests -->
                                     <div class="tab-pane fade" id="denied">
                                         <div th:if="${#lists.isEmpty(requests)}" class="alert alert-info">
-                                            No denied requests
+                                            Aucune demande refusée
                                         </div>
                                         <div th:each="request : ${requests}" th:if="${request.status == 'DENIED'}"
                                             class="card request-card denied">
@@ -167,13 +168,13 @@
                                             <div class="card-body">
                                                 <p><strong>Date:</strong> <span
                                                         th:text="${request.appointmentDate}"></span></p>
-                                                <p><strong>Time:</strong> <span
+                                                <p><strong>Heure:</strong> <span
                                                         th:text="${request.appointmentTime}"></span></p>
-                                                <p><strong>Reason:</strong> <span th:text="${request.reason}"></span>
+                                                <p><strong>Raison:</strong> <span th:text="${request.reason}"></span>
                                                 </p>
-                                                <p><strong>Denial Reason:</strong></p>
+                                                <p><strong>Raison du Refus:</strong></p>
                                                 <p class="text-danger" th:text="${request.denialReason}"></p>
-                                                <span class="badge badge-danger">Denied on <span
+                                                <span class="badge badge-danger">Refusée le <span
                                                         th:text="${request.updatedAt}"></span></span>
                                             </div>
                                         </div>

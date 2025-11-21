@@ -3,7 +3,7 @@
     xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" layout:decorate="~{shared/layout}">
 
 <head>
-    <title>Request Details</title>
+    <title>Détails de la Demande</title>
 </head>
 
 <body>
@@ -13,18 +13,18 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0">Request Details</h1>
+                        <h1 class="m-0">Détails de la Demande</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
                             <li class="breadcrumb-item" sec:authorize="hasRole('PATIENT')">
-                                <a href="/appointment-requests/my-requests">My Requests</a>
+                                <a href="/appointment-requests/my-requests">Mes Demandes</a>
                             </li>
                             <li class="breadcrumb-item" sec:authorize="hasRole('DOCTOR')">
-                                <a href="/appointment-requests/pending-requests">Pending Requests</a>
+                                <a href="/appointment-requests/pending-requests">Demandes Reçues</a>
                             </li>
-                            <li class="breadcrumb-item active">Details</li>
+                            <li class="breadcrumb-item active">Détails</li>
                         </ol>
                     </div>
                 </div>
@@ -38,13 +38,13 @@
                     <div class="col-md-8">
                         <div class="card card-primary">
                             <div class="card-header">
-                                <h3 class="card-title">Request <span th:text="${appointmentRequest.requestId}"></span>
+                                <h3 class="card-title">Demande <span th:text="${appointmentRequest.requestId}"></span>
                                 </h3>
                                 <div class="card-tools pull-right">
                                     <span th:switch="${appointmentRequest.status}" class="badge">
-                                        <span th:case="'PENDING'" class="badge badge-warning">Pending</span>
-                                        <span th:case="'APPROVED'" class="badge badge-success">Approved</span>
-                                        <span th:case="'DENIED'" class="badge badge-danger">Denied</span>
+                                        <span th:case="'PENDING'" class="badge badge-warning">En attente</span>
+                                        <span th:case="'APPROVED'" class="badge badge-success">Approuvée</span>
+                                        <span th:case="'DENIED'" class="badge badge-danger">Refusée</span>
                                     </span>
                                 </div>
                             </div>
@@ -54,33 +54,33 @@
                                     <p class="form-control-plaintext" th:text="${appointmentRequest.patientName}"></p>
                                 </div>
                                 <div class="form-group">
-                                    <label>Doctor</label>
+                                    <label>Médecin</label>
                                     <p class="form-control-plaintext" th:text="${appointmentRequest.doctorName}"></p>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Appointment Date</label>
+                                            <label>Date du Rendez-vous</label>
                                             <p class="form-control-plaintext"
                                                 th:text="${appointmentRequest.appointmentDate}"></p>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Appointment Time</label>
+                                            <label>Heure du Rendez-vous</label>
                                             <p class="form-control-plaintext"
                                                 th:text="${appointmentRequest.appointmentTime}"></p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Reason for Appointment</label>
+                                    <label>Raison de la Consultation</label>
                                     <p class="form-control-plaintext" th:text="${appointmentRequest.reason}"></p>
                                 </div>
 
                                 <div th:if="${appointmentRequest.status == 'DENIED'}">
                                     <div class="form-group">
-                                        <label>Reason for Denial</label>
+                                        <label>Raison du Refus</label>
                                         <p class="form-control-plaintext" th:text="${appointmentRequest.denialReason}">
                                         </p>
                                     </div>
@@ -89,14 +89,14 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Requested On</label>
+                                            <label>Demande Créée</label>
                                             <p class="form-control-plaintext" th:text="${appointmentRequest.createdAt}">
                                             </p>
                                         </div>
                                     </div>
                                     <div class="col-md-6" th:if="${appointmentRequest.updatedAt != null}">
                                         <div class="form-group">
-                                            <label>Updated On</label>
+                                            <label>Mise à Jour</label>
                                             <p class="form-control-plaintext" th:text="${appointmentRequest.updatedAt}">
                                             </p>
                                         </div>
@@ -112,17 +112,17 @@
                                         <form method="post"
                                             th:action="@{/appointment-requests/approve/{id}(id=${appointmentRequest.id})}">
                                             <button type="submit" class="btn btn-success btn-block">
-                                                <i class="fas fa-check"></i> Approve Request
+                                                <i class="fas fa-check"></i> Approuver la Demande
                                             </button>
                                         </form>
                                     </div>
                                     <div class="col-md-6">
                                         <form method="post"
                                             th:action="@{/appointment-requests/deny/{id}(id=${appointmentRequest.id})}">
-                                            <input type="hidden" name="denialReason" value="Denied by doctor">
+                                            <input type="hidden" name="denialReason" value="Refusé par le médecin">
                                             <button type="submit" class="btn btn-danger btn-block"
-                                                onclick="return confirm('Are you sure you want to deny this request?');">
-                                                <i class="fas fa-times"></i> Deny Request
+                                                onclick="return confirm('Êtes-vous sûr de vouloir refuser cette demande?');">
+                                                <i class="fas fa-times"></i> Refuser la Demande
                                             </button>
                                         </form>
                                     </div>
@@ -136,32 +136,32 @@
                         <div class="card card-outline"
                             th:classappend="${appointmentRequest.status == 'APPROVED' ? 'card-success' : appointmentRequest.status == 'DENIED' ? 'card-danger' : 'card-warning'}">
                             <div class="card-header">
-                                <h3 class="card-title">Status Summary</h3>
+                                <h3 class="card-title">Résumé du Statut</h3>
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label>Current Status</label>
+                                    <label>Statut Actuel</label>
                                     <span th:switch="${appointmentRequest.status}" class="badge"
                                         style="font-size: 0.95rem;">
-                                        <span th:case="'PENDING'" class="badge badge-warning">Pending Review</span>
-                                        <span th:case="'APPROVED'" class="badge badge-success">Approved</span>
-                                        <span th:case="'DENIED'" class="badge badge-danger">Denied</span>
+                                        <span th:case="'PENDING'" class="badge badge-warning">En Attente d'Examen</span>
+                                        <span th:case="'APPROVED'" class="badge badge-success">Approuvée</span>
+                                        <span th:case="'DENIED'" class="badge badge-danger">Refusée</span>
                                     </span>
                                 </div>
 
                                 <div class="form-group mt-3">
-                                    <label>Request ID</label>
+                                    <label>ID de la Demande</label>
                                     <p class="form-control-plaintext small" th:text="${appointmentRequest.requestId}">
                                     </p>
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Request Created</label>
+                                    <label>Demande Créée</label>
                                     <p class="form-control-plaintext small" th:text="${appointmentRequest.createdAt}">
                                     </p>
                                 </div>
 
-                                <a href="javascript:history.back()" class="btn btn-secondary btn-block mt-4">Back</a>
+                                <a href="javascript:history.back()" class="btn btn-secondary btn-block mt-4">Retour</a>
                             </div>
                         </div>
                     </div>
