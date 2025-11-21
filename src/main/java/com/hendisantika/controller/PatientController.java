@@ -52,23 +52,24 @@ public class PatientController {
      * Save new patient
      */
     @PostMapping("/save")
-    public String ajouterPatient(@ModelAttribute Patient patient, 
-                                 @RequestParam(required = false) String generatedUsername,
-                                 Model model) {
+    public String ajouterPatient(@ModelAttribute Patient patient,
+            @RequestParam(required = false) String generatedUsername,
+            Model model) {
         // Determine the username to use
-        String username = (generatedUsername != null && !generatedUsername.isEmpty()) 
-            ? generatedUsername 
-            : "patient_" + patient.getFirstName().toLowerCase();
-        
+        String username = (generatedUsername != null && !generatedUsername.isEmpty())
+                ? generatedUsername
+                : "patient_" + patient.getFirstName().toLowerCase();
+
         // Validate username starts with "patient_"
         if (!username.startsWith("patient_")) {
             username = "patient_" + username;
         }
-        
+
         // Check if username already exists
         if (userService.usernameExists(username)) {
             model.addAttribute("patient", patient);
-            model.addAttribute("error", "Le nom d'utilisateur '" + username + "' existe déjà. Veuillez choisir un autre nom d'utilisateur.");
+            model.addAttribute("error", "Le nom d'utilisateur '" + username
+                    + "' existe déjà. Veuillez choisir un autre nom d'utilisateur.");
             model.addAttribute("showUsernameEdit", true);
             return "patient-add";
         }

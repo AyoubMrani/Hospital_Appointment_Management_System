@@ -87,10 +87,12 @@
                             <div class="card-header">
                                 <h3 class="card-title">Informations du Patient</h3>
                             </div>
-                            <form method="post" th:action="@{/patients/save}" th:object="${patient}" onsubmit="handlePatientFormSubmit()">
+                            <form method="post" th:action="@{/patients/save}" th:object="${patient}"
+                                onsubmit="handlePatientFormSubmit()">
                                 <div class="card-body">
                                     <input type="hidden" id="hiddenUsername" name="generatedUsername">
-                                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show"
+                                        role="alert">
                                         <strong>Erreur!</strong> <span th:text="${error}"></span>
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
@@ -107,7 +109,7 @@
                                     <div class="form-group">
                                         <label for="username">Nom d'utilisateur</label>
                                         <input type="text" class="form-control" id="username"
-                                            placeholder="Généré automatiquement" 
+                                            placeholder="Généré automatiquement"
                                             th:readonly="${showUsernameEdit == null}">
                                     </div>
 
