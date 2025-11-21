@@ -1,6 +1,8 @@
 package com.hendisantika.controller;
 
+import com.hendisantika.entity.Patient;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -26,7 +28,8 @@ public class WebPageController {
     }
 
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("patient", new Patient());
         return "register";
     }
 

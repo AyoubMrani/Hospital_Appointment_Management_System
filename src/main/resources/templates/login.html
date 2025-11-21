@@ -37,6 +37,9 @@
                 <p class="login-box-msg" th:if="${param.logout}">
                     You have been logged out.
                 </p>
+                <p class="login-box-msg" th:if="${param.registered}" style="color: green;">
+                    Registration successful! Please sign in with your credentials.
+                </p>
 
                 <p class="login-box-msg">Sign in to start your session</p>
 
