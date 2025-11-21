@@ -89,11 +89,10 @@
 
         <form action="/public/register" method="post" th:object="${patient}" onsubmit="handlePatientFormSubmit()">
           <input type="hidden" id="hiddenUsername" name="generatedUsername">
-          
+
           <div class="form-group">
             <label for="firstName">Prénom <span class="text-danger">*</span></label>
-            <input class="form-control" id="firstName" placeholder="Prénom" type="text"
-              th:field="*{firstName}"
+            <input class="form-control" id="firstName" placeholder="Prénom" type="text" th:field="*{firstName}"
               onkeyup="updatePatientUsername(); updatePatientEmail();" required>
           </div>
 
@@ -105,15 +104,14 @@
 
           <div class="form-group">
             <label for="lastName">Nom <span class="text-danger">*</span></label>
-            <input class="form-control" id="lastName" placeholder="Nom" type="text"
-              th:field="*{lastName}" onkeyup="updatePatientEmail();" required>
+            <input class="form-control" id="lastName" placeholder="Nom" type="text" th:field="*{lastName}"
+              onkeyup="updatePatientEmail();" required>
           </div>
 
           <div class="form-row">
             <div class="form-group col-md-6">
               <label for="dateOfBirth">Date de Naissance</label>
-              <input class="form-control" id="dateOfBirth" type="date"
-                th:field="*{dateOfBirth}">
+              <input class="form-control" id="dateOfBirth" type="date" th:field="*{dateOfBirth}">
             </div>
             <div class="form-group col-md-6">
               <label for="gender">Sexe</label>
@@ -127,43 +125,37 @@
 
           <div class="form-group">
             <label for="email">Email</label>
-            <input class="form-control" id="email" placeholder="Email" type="email"
-              th:field="*{email}">
+            <input class="form-control" id="email" placeholder="Email" type="email" th:field="*{email}">
           </div>
 
           <div class="form-group">
             <label for="phone">Téléphone <span class="text-danger">*</span></label>
-            <input class="form-control" id="phone" placeholder="Téléphone" type="tel"
-              th:field="*{phone}" required>
+            <input class="form-control" id="phone" placeholder="Téléphone" type="tel" th:field="*{phone}" required>
           </div>
 
           <div class="form-group">
             <label for="password">Mot de passe <span class="text-danger">*</span></label>
-            <input class="form-control" id="password" placeholder="Mot de passe" type="text"
-              th:field="*{password}" required>
+            <input class="form-control" id="password" placeholder="Mot de passe" type="text" th:field="*{password}"
+              required>
           </div>
 
           <div class="form-group">
             <label for="address">Adresse</label>
-            <input class="form-control" id="address" placeholder="Adresse" type="text"
-              th:field="*{address}">
+            <input class="form-control" id="address" placeholder="Adresse" type="text" th:field="*{address}">
           </div>
 
           <div class="form-row">
             <div class="form-group col-md-4">
               <label for="city">Ville</label>
-              <input class="form-control" id="city" placeholder="Casablanca" type="text"
-                th:field="*{city}">
+              <input class="form-control" id="city" placeholder="Casablanca" type="text" th:field="*{city}">
             </div>
             <div class="form-group col-md-4">
               <label for="postalCode">Code Postal</label>
-              <input class="form-control" id="postalCode" placeholder="20000" type="text"
-                th:field="*{postalCode}">
+              <input class="form-control" id="postalCode" placeholder="20000" type="text" th:field="*{postalCode}">
             </div>
             <div class="form-group col-md-4">
               <label for="country">Pays</label>
-              <input class="form-control" id="country" placeholder="Maroc" type="text"
-                th:field="*{country}">
+              <input class="form-control" id="country" placeholder="Maroc" type="text" th:field="*{country}">
             </div>
           </div>
 

@@ -30,8 +30,8 @@ public class RegistrationController {
      */
     @PostMapping("/register")
     public String registerPatient(@ModelAttribute Patient patient,
-                                  @RequestParam(required = false) String generatedUsername,
-                                  Model model) {
+            @RequestParam(required = false) String generatedUsername,
+            Model model) {
         // Determine the username to use
         String username = (generatedUsername != null && !generatedUsername.isEmpty())
                 ? generatedUsername
@@ -56,7 +56,7 @@ public class RegistrationController {
         patient.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         patient.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
         patient.setActive(true);
-        
+
         // Save patient
         patientRepository.save(patient);
 

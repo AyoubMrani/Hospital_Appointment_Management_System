@@ -35,7 +35,8 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests(authz -> authz
                         // Public endpoints
-                        .requestMatchers("/login", "/register", "/public/register", "/css/**", "/js/**", "/images/**", "/webjars/**",
+                        .requestMatchers("/login", "/register", "/public/register", "/css/**", "/js/**", "/images/**",
+                                "/webjars/**",
                                 "/favicon.ico")
                         .permitAll()
                         // Doctor management - ADMIN only
