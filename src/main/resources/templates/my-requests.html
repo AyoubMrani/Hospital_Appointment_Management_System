@@ -49,7 +49,8 @@
                                     </thead>
                                     <tbody>
                                         <tr th:if="${requests.isEmpty()}">
-                                            <td colspan="7" class="text-center">Aucune demande de rendez-vous trouvée</td>
+                                            <td colspan="7" class="text-center">Aucune demande de rendez-vous trouvée
+                                            </td>
                                         </tr>
                                         <tr th:each="request : ${requests}">
                                             <td th:text="${request.requestId}"></td>
