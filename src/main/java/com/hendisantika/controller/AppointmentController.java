@@ -3,12 +3,16 @@ package com.hendisantika.controller;
 import com.hendisantika.entity.Appointment;
 import com.hendisantika.entity.Patient;
 import com.hendisantika.entity.Doctor;
+import com.hendisantika.entity.User;
 import com.hendisantika.repository.AppointmentRepository;
 import com.hendisantika.repository.PatientRepository;
 import com.hendisantika.repository.DoctorRepository;
+import com.hendisantika.repository.UserRepository;
 import com.hendisantika.service.SequenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +21,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Appointment Controller for handling appointment management operations
+ * Appointment Controller with comprehensive RBAC
+ * - ADMIN: full access to all appointments
+ * - DOCTOR: can view/create appointments for own patients only, cannot delete/update
+ * - PATIENT: can view own appointments only, can only cancel (not delete/update)
  */
 @Controller
 @RequestMapping("/appointments")
@@ -33,23 +40,82 @@ public class AppointmentController {
     private DoctorRepository doctorRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private SequenceService sequenceService;
 
     /**
-     * Display all appointments
+     * Get current logged-in user
+     */
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            Optional<User> user = userRepository.findByUsername(username);
+            return user.orElse(null);
+        }
+        return null;
+    }
+
+    /**
+     * Check if user is admin
+     */
+    private boolean isAdmin() {
+        User user = getCurrentUser();
+        return user != null && "ADMIN".equals(user.getRole());
+    }
+
+    /**
+     * Check if user is doctor
+     */
+    private boolean isDoctor() {
+        User user = getCurrentUser();
+        return user != null && "DOCTOR".equals(user.getRole());
+    }
+
+    /**
+     * Check if user is patient
+     */
+    private boolean isPatient() {
+        User user = getCurrentUser();
+        return user != null && "PATIENT".equals(user.getRole());
+    }
+
+    /**
+     * Display all appointments (filtered by role)
+     * ADMIN: all | DOCTOR: own appointments | PATIENT: own appointments
      */
     @GetMapping("/list")
     public String listerTousLesRendezVous(Model model) {
         List<Appointment> appointments = appointmentRepository.findAll();
+        User currentUser = getCurrentUser();
+
+        if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
+            // Doctors see only their appointments
+            appointments = appointments.stream()
+                    .filter(a -> a.getDoctorId().equals(currentUser.getDoctorId()))
+                    .collect(Collectors.toList());
+        } else if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
+            // Patients see only their appointments
+            appointments = appointments.stream()
+                    .filter(a -> a.getPatientId().equals(currentUser.getPatientId()))
+                    .collect(Collectors.toList());
+        }
+        // ADMIN sees all appointments
+
         model.addAttribute("appointments", appointments);
         return "appointment-list";
     }
 
     /**
-     * Get appointments by date
+     * Get appointments by date - ADMIN only
      */
     @GetMapping("/by-date/{date}")
     public String afficherRendezVousParDate(@PathVariable String date, Model model) {
+        if (!isAdmin()) {
+            return "redirect:/appointments/list";
+        }
         List<Appointment> appointments = appointmentRepository.findByDate(date);
         model.addAttribute("appointments", appointments);
         model.addAttribute("date", date);
@@ -57,10 +123,13 @@ public class AppointmentController {
     }
 
     /**
-     * Get appointments by doctor
+     * Get appointments by doctor - ADMIN only
      */
     @GetMapping("/doctor/{doctorId}")
     public String afficherRendezVousParMedecin(@PathVariable String doctorId, Model model) {
+        if (!isAdmin()) {
+            return "redirect:/appointments/list";
+        }
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
         Optional<Doctor> doctor = doctorRepository.findById(doctorId);
         model.addAttribute("appointments", appointments);
@@ -69,10 +138,13 @@ public class AppointmentController {
     }
 
     /**
-     * Get appointments by patient
+     * Get appointments by patient - ADMIN only
      */
     @GetMapping("/patient/{patientId}")
     public String afficherRendezVousParPatient(@PathVariable String patientId, Model model) {
+        if (!isAdmin()) {
+            return "redirect:/appointments/list";
+        }
         List<Appointment> appointments = appointmentRepository.findByPatientId(patientId);
         Optional<Patient> patient = patientRepository.findById(patientId);
         model.addAttribute("appointments", appointments);
@@ -82,14 +154,35 @@ public class AppointmentController {
 
     /**
      * Show form to add new appointment
+     * ADMIN: for anyone | DOCTOR: for own patients | PATIENT: for themselves
      */
     @GetMapping("/add")
     public String afficherFormulaireReserverRendezVous(Model model) {
-        List<Patient> patients = patientRepository.findAll();
-        List<Doctor> doctors = doctorRepository.findAll();
-        model.addAttribute("appointment", new Appointment());
+        User currentUser = getCurrentUser();
+        List<Patient> patients = patientRepository.findAll().stream()
+                .filter(Patient::isActive)
+                .collect(Collectors.toList());
+        List<Doctor> doctors = doctorRepository.findAll().stream()
+                .filter(Doctor::isActive)
+                .collect(Collectors.toList());
+        Appointment appointment = new Appointment();
+
+        // Pre-fill based on user role
+        if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
+            appointment.setDoctorId(currentUser.getDoctorId());
+            // Doctors can only create appointments for themselves
+        } else if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
+            appointment.setPatientId(currentUser.getPatientId());
+            // Patients can only create appointments for themselves
+        } else if (!isAdmin()) {
+            // Only ADMIN, DOCTOR, PATIENT can add appointments
+            return "redirect:/";
+        }
+
+        model.addAttribute("appointment", appointment);
         model.addAttribute("patients", patients);
         model.addAttribute("doctors", doctors);
+        model.addAttribute("userRole", isAdmin() ? "ADMIN" : (isDoctor() ? "DOCTOR" : "PATIENT"));
         return "appointment-add";
     }
 
@@ -98,6 +191,25 @@ public class AppointmentController {
      */
     @PostMapping("/save")
     public String reserverRendezVous(@ModelAttribute Appointment appointment) {
+        User currentUser = getCurrentUser();
+        
+        // DOCTOR can only create appointments with themselves as doctor
+        if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
+            if (!appointment.getDoctorId().equals(currentUser.getDoctorId())) {
+                return "redirect:/appointments/list";
+            }
+        }
+        // PATIENT can only create appointments for themselves
+        else if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
+            if (!appointment.getPatientId().equals(currentUser.getPatientId())) {
+                return "redirect:/appointments/list";
+            }
+        }
+        // ADMIN can create for anyone
+        else if (!isAdmin()) {
+            return "redirect:/";
+        }
+
         appointment.setAppointmentId(sequenceService.getNextSequenceId("appointment_seq", "A"));
         appointment.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         appointment.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
@@ -122,10 +234,13 @@ public class AppointmentController {
     }
 
     /**
-     * Edit existing appointment
+     * Edit appointment - ADMIN only
      */
     @GetMapping("/edit/{id}")
     public String afficherFormulaireModifierRendezVous(@PathVariable String id, Model model) {
+        if (!isAdmin()) {
+            return "redirect:/appointments/list";
+        }
         Optional<Appointment> appointment = appointmentRepository.findById(id);
         if (appointment.isPresent()) {
             List<Patient> patients = patientRepository.findAll();
@@ -139,10 +254,13 @@ public class AppointmentController {
     }
 
     /**
-     * Update appointment
+     * Update appointment - ADMIN only
      */
     @PostMapping("/update")
     public String modifierRendezVous(@ModelAttribute Appointment appointment) {
+        if (!isAdmin()) {
+            return "redirect:/appointments/list";
+        }
         // Preserve existing data
         Optional<Appointment> existingAppointment = appointmentRepository.findById(appointment.getId());
         if (existingAppointment.isPresent()) {
@@ -161,27 +279,62 @@ public class AppointmentController {
     }
 
     /**
-     * Cancel appointment
+     * Cancel appointment - Any role can cancel their own appointments
      */
     @PostMapping("/cancel/{id}")
     public String annulerRendezVous(@PathVariable String id, @RequestParam String reason) {
+        User currentUser = getCurrentUser();
         Optional<Appointment> appointment = appointmentRepository.findById(id);
-        if (appointment.isPresent()) {
-            Appointment app = appointment.get();
+        
+        if (!appointment.isPresent()) {
+            return "redirect:/appointments/list";
+        }
+        
+        Appointment app = appointment.get();
+        
+        // ADMIN can cancel any appointment
+        if (isAdmin()) {
             app.setStatus("Annulé");
             app.setCancelledAt(String.valueOf(System.currentTimeMillis()));
             app.setCancelledReason(reason);
             app.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
             appointmentRepository.save(app);
+            return "redirect:/appointments/list";
         }
+        
+        // PATIENT can only cancel their own appointments
+        if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
+            if (app.getPatientId().equals(currentUser.getPatientId())) {
+                app.setStatus("Annulé");
+                app.setCancelledAt(String.valueOf(System.currentTimeMillis()));
+                app.setCancelledReason(reason);
+                app.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
+                appointmentRepository.save(app);
+            }
+        }
+        
+        // DOCTOR can only cancel their own appointments
+        if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
+            if (app.getDoctorId().equals(currentUser.getDoctorId())) {
+                app.setStatus("Annulé");
+                app.setCancelledAt(String.valueOf(System.currentTimeMillis()));
+                app.setCancelledReason(reason);
+                app.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
+                appointmentRepository.save(app);
+            }
+        }
+        
         return "redirect:/appointments/list";
     }
 
     /**
-     * Delete appointment
+     * Delete appointment - ADMIN only
      */
     @GetMapping("/delete/{id}")
     public String supprimerRendezVous(@PathVariable String id) {
+        if (!isAdmin()) {
+            return "redirect:/";
+        }
         appointmentRepository.deleteById(id);
         return "redirect:/calendar#calendar";
     }
@@ -191,19 +344,48 @@ public class AppointmentController {
      */
     @GetMapping("/view/{id}")
     public String afficherRendezVousParMedecinEtDate(@PathVariable String id, Model model) {
+        User currentUser = getCurrentUser();
         Optional<Appointment> appointment = appointmentRepository.findById(id);
-        if (appointment.isPresent()) {
-            model.addAttribute("appointment", appointment.get());
+        
+        if (!appointment.isPresent()) {
+            return "redirect:/appointments/list";
+        }
+        
+        Appointment app = appointment.get();
+        
+        // ADMIN can view any
+        if (isAdmin()) {
+            model.addAttribute("appointment", app);
             return "appointment-view";
         }
+        
+        // PATIENT can view only their appointments
+        if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
+            if (app.getPatientId().equals(currentUser.getPatientId())) {
+                model.addAttribute("appointment", app);
+                return "appointment-view";
+            }
+        }
+        
+        // DOCTOR can view only their appointments
+        if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
+            if (app.getDoctorId().equals(currentUser.getDoctorId())) {
+                model.addAttribute("appointment", app);
+                return "appointment-view";
+            }
+        }
+        
         return "redirect:/appointments/list";
     }
 
     /**
-     * Mark appointment as completed
+     * Mark appointment as completed - DOCTOR and ADMIN only
      */
     @GetMapping("/complete/{id}")
     public String trouverCreneauxDisponibles(@PathVariable String id) {
+        if (!isAdmin() && !isDoctor()) {
+            return "redirect:/";
+        }
         Optional<Appointment> appointment = appointmentRepository.findById(id);
         if (appointment.isPresent()) {
             Appointment app = appointment.get();
@@ -215,12 +397,25 @@ public class AppointmentController {
     }
 
     /**
-     * API endpoint for live search
+     * API endpoint for live search - filtered by role
      */
     @GetMapping("/api/search")
     @ResponseBody
     public ResponseEntity<List<Appointment>> rechercherRendezVous(@RequestParam String query) {
         List<Appointment> allAppointments = appointmentRepository.findAll();
+        User currentUser = getCurrentUser();
+        
+        // Filter by role
+        if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
+            allAppointments = allAppointments.stream()
+                    .filter(a -> a.getDoctorId().equals(currentUser.getDoctorId()))
+                    .collect(Collectors.toList());
+        } else if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
+            allAppointments = allAppointments.stream()
+                    .filter(a -> a.getPatientId().equals(currentUser.getPatientId()))
+                    .collect(Collectors.toList());
+        }
+        
         String lowerQuery = query.toLowerCase();
 
         List<Appointment> results = allAppointments.stream()

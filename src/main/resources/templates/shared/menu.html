@@ -57,8 +57,8 @@
                     </ul>
                 </li>
 
-                <!-- Doctors Management -->
-                <li class="nav-item has-treeview">
+                <!-- Doctors Management - ADMIN ONLY -->
+                <li class="nav-item has-treeview" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link" href="#">
                         <i class="nav-icon fas fa-stethoscope"></i>
                         <p>

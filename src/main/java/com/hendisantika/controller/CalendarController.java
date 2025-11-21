@@ -1,15 +1,20 @@
 package com.hendisantika.controller;
 
 import com.hendisantika.entity.Appointment;
+import com.hendisantika.entity.User;
 import com.hendisantika.repository.AppointmentRepository;
+import com.hendisantika.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -22,6 +27,30 @@ public class CalendarController {
     @Autowired
     private AppointmentRepository appointmentRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    /**
+     * Get current logged-in user
+     */
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            Optional<User> user = userRepository.findByUsername(username);
+            return user.orElse(null);
+        }
+        return null;
+    }
+
+    /**
+     * Get current user's role
+     */
+    private String getCurrentUserRole() {
+        User user = getCurrentUser();
+        return user != null ? user.getRole() : "PATIENT";
+    }
+
     /**
      * Display calendar page with AdminLTE layout
      */
@@ -31,12 +60,30 @@ public class CalendarController {
     }
 
     /**
-     * API endpoint to get all appointments in FullCalendar format
+     * API endpoint to get all appointments in FullCalendar format (filtered by
+     * role)
      */
     @GetMapping("/api/events")
     @ResponseBody
     public ResponseEntity<List<CalendarEvent>> getCalendarEvents() {
         List<Appointment> appointments = appointmentRepository.findAll();
+
+        // Filter based on user role
+        String role = getCurrentUserRole();
+        User currentUser = getCurrentUser();
+
+        if ("DOCTOR".equals(role) && currentUser != null && currentUser.getDoctorId() != null) {
+            // Doctors see only their appointments
+            appointments = appointments.stream()
+                    .filter(a -> a.getDoctorId().equals(currentUser.getDoctorId()))
+                    .collect(Collectors.toList());
+        } else if ("PATIENT".equals(role) && currentUser != null && currentUser.getPatientId() != null) {
+            // Patients see only their appointments
+            appointments = appointments.stream()
+                    .filter(a -> a.getPatientId().equals(currentUser.getPatientId()))
+                    .collect(Collectors.toList());
+        }
+        // ADMIN sees all appointments
 
         List<CalendarEvent> events = appointments.stream()
                 .map(appointment -> new CalendarEvent(

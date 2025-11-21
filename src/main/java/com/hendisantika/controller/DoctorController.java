@@ -3,6 +3,7 @@ package com.hendisantika.controller;
 import com.hendisantika.entity.Doctor;
 import com.hendisantika.repository.DoctorRepository;
 import com.hendisantika.service.SequenceService;
+import com.hendisantika.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,9 @@ public class DoctorController {
 
     @Autowired
     private SequenceService sequenceService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * Display all doctors
@@ -64,6 +68,13 @@ public class DoctorController {
         doctor.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         doctor.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
         doctorRepository.save(doctor);
+
+        // Create user account for doctor
+        String username = "dr_" + doctor.getFirstName().toLowerCase();
+        if (!userService.usernameExists(username)) {
+            userService.createDoctorUser(username, doctor.getEmail(), doctor.getPassword(), doctor.getDoctorId());
+        }
+
         return "redirect:/doctors/list";
     }
 
@@ -98,11 +109,19 @@ public class DoctorController {
     }
 
     /**
-     * Delete doctor
+     * Delete doctor (soft delete - marks as inactive)
      */
     @GetMapping("/delete/{id}")
     public String supprimerMedecin(@PathVariable String id) {
-        doctorRepository.deleteById(id);
+        Optional<Doctor> doctor = doctorRepository.findById(id);
+        if (doctor.isPresent()) {
+            Doctor doc = doctor.get();
+            doc.setActive(false);
+            doc.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
+            doctorRepository.save(doc);
+            // Deactivate associated user account
+            userService.deactivateUser(doc.getDoctorId(), null);
+        }
         return "redirect:/doctors/list";
     }
 
@@ -127,7 +146,7 @@ public class DoctorController {
     public ResponseEntity<List<Doctor>> rechercherMedecins(@RequestParam String query) {
         List<Doctor> allDoctors = doctorRepository.findAll();
         String lowerQuery = query.toLowerCase();
-        
+
         List<Doctor> results = allDoctors.stream()
                 .filter(d -> d.getFirstName().toLowerCase().contains(lowerQuery) ||
                         d.getLastName().toLowerCase().contains(lowerQuery) ||
@@ -136,7 +155,7 @@ public class DoctorController {
                         d.getEmail().toLowerCase().contains(lowerQuery) ||
                         d.getPhone().toLowerCase().contains(lowerQuery))
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(results);
     }
 }

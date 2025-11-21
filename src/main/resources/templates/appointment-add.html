@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{shared/layout}">
+    xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" layout:decorate="~{shared/layout}">
 
 <head>
     <title>Planifier Rendez-vous</title>
@@ -38,7 +38,7 @@
                             <form method="post" th:action="@{/appointments/save}" th:object="${appointment}">
                                 <div class="card-body">
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-6" sec:authorize="hasRole('ADMIN')">
                                             <label for="patientId">Patient <span class="text-danger">*</span></label>
                                             <select class="form-control" id="patientId" th:field="*{patientId}"
                                                 required>
@@ -48,7 +48,13 @@
                                                 </option>
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-6" sec:authorize="!hasRole('ADMIN')">
+                                            <label for="patientId">Patient <span class="text-danger">*</span></label>
+                                            <input type="hidden" id="patientId" th:field="*{patientId}" />
+                                            <input type="text" class="form-control" readonly
+                                                th:value="${appointment.patientId ? #strings.listJoin(patients.stream().filter(p -> p.id == appointment.patientId).map(p -> p.firstName + ' ' + p.lastName).toList(), '') : 'Votre Patient'}" />
+                                        </div>
+                                        <div class="form-group col-md-6" sec:authorize="hasAnyRole('ADMIN', 'PATIENT')">
                                             <label for="doctorId">Médecin <span class="text-danger">*</span></label>
                                             <select class="form-control" id="doctorId" th:field="*{doctorId}" required>
                                                 <option value="">-- Sélectionner --</option>
@@ -57,6 +63,12 @@
                                                     Doctor
                                                 </option>
                                             </select>
+                                        </div>
+                                        <div class="form-group col-md-6" sec:authorize="hasRole('DOCTOR')">
+                                            <label for="doctorId">Médecin <span class="text-danger">*</span></label>
+                                            <input type="hidden" id="doctorId" th:field="*{doctorId}" />
+                                            <input type="text" class="form-control" readonly
+                                                value="Vous (Votre Profil)" />
                                         </div>
                                     </div>
 

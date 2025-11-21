@@ -4,6 +4,58 @@
 
 <head>
     <title>Ajouter Patient</title>
+    <script>
+        // Live username and email generation for patient
+        function updatePatientUsername() {
+            const firstName = document.getElementById('firstName').value.toLowerCase();
+            const username = firstName ? 'patient_' + firstName : '';
+            document.getElementById('username').value = username;
+        }
+
+        function updatePatientEmail() {
+            const firstName = document.getElementById('firstName').value.toLowerCase();
+            const lastName = document.getElementById('lastName').value.toLowerCase();
+            const email = (firstName && lastName) ? firstName + '.' + lastName + '@hopital.com' : '';
+            document.getElementById('email').value = email;
+        }
+
+        // Address auto-fill mapping based on city
+        const cityAddressMap = {
+            'Casablanca': '123 Rue de la Paix',
+            'Rabat': '456 Avenue Mohamed V',
+            'Marrakech': '789 Boulevard Hassan II',
+            'Fez': '321 Rue de l\'Independence',
+            'Tangier': '654 Avenue Sidi Mohammad',
+            'Agadir': '987 Rue Prince Héritier',
+            'Sale': '147 Boulevard Zaid',
+            'Tétouan': '258 Rue du Port',
+            'Meknes': '369 Rue Majorelle'
+        };
+
+        // Auto-fill address based on city selection - set up after DOM loads
+        window.addEventListener('load', function () {
+            const cityField = document.getElementById('city');
+            const addressField = document.getElementById('address');
+
+            if (cityField && addressField) {
+                cityField.addEventListener('change', function () {
+                    if (this.value in cityAddressMap) {
+                        addressField.value = cityAddressMap[this.value];
+                    }
+                });
+            }
+        });
+
+        // Handle form submission to capture username
+        function handlePatientFormSubmit() {
+            const usernameField = document.getElementById('username');
+            const hiddenUsernameField = document.getElementById('hiddenUsername');
+            if (hiddenUsernameField) {
+                hiddenUsernameField.value = usernameField.value;
+            }
+            return true;
+        }
+    </script>
 </head>
 
 <body>
@@ -35,18 +87,34 @@
                             <div class="card-header">
                                 <h3 class="card-title">Informations du Patient</h3>
                             </div>
-                            <form method="post" th:action="@{/patients/save}" th:object="${patient}">
+                            <form method="post" th:action="@{/patients/save}" th:object="${patient}" onsubmit="handlePatientFormSubmit()">
                                 <div class="card-body">
+                                    <input type="hidden" id="hiddenUsername" name="generatedUsername">
+                                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <strong>Erreur!</strong> <span th:text="${error}"></span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
                                     <div class="form-group">
                                         <label for="firstName">Prénom <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="firstName" placeholder="Prénom"
-                                            th:field="*{firstName}" required>
+                                            th:field="*{firstName}"
+                                            onkeyup="updatePatientUsername(); updatePatientEmail();" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="username">Nom d'utilisateur</label>
+                                        <input type="text" class="form-control" id="username"
+                                            placeholder="Généré automatiquement" 
+                                            th:readonly="${showUsernameEdit == null}">
                                     </div>
 
                                     <div class="form-group">
                                         <label for="lastName">Nom <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="lastName" placeholder="Nom"
-                                            th:field="*{lastName}" required>
+                                            th:field="*{lastName}" onkeyup="updatePatientEmail();" required>
                                     </div>
 
                                     <div class="form-row">
@@ -78,9 +146,33 @@
                                     </div>
 
                                     <div class="form-group">
+                                        <label for="password">Mot de passe <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="password" placeholder="Mot de passe"
+                                            th:field="*{password}" required>
+                                    </div>
+
+                                    <div class="form-group">
                                         <label for="address">Adresse</label>
                                         <input type="text" class="form-control" id="address" placeholder="Adresse"
                                             th:field="*{address}">
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="city">Ville</label>
+                                            <input type="text" class="form-control" id="city" placeholder="Casablanca"
+                                                th:field="*{city}">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="postalCode">Code Postal</label>
+                                            <input type="text" class="form-control" id="postalCode" placeholder="20000"
+                                                th:field="*{postalCode}">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="country">Pays</label>
+                                            <input type="text" class="form-control" id="country" placeholder="Maroc"
+                                                th:field="*{country}">
+                                        </div>
                                     </div>
 
                                     <div class="form-group">

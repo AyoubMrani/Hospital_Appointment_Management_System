@@ -3,6 +3,7 @@ package com.hendisantika.controller;
 import com.hendisantika.entity.Patient;
 import com.hendisantika.repository.PatientRepository;
 import com.hendisantika.service.SequenceService;
+import com.hendisantika.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,9 @@ public class PatientController {
 
     @Autowired
     private SequenceService sequenceService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * Display all patients
@@ -48,11 +52,35 @@ public class PatientController {
      * Save new patient
      */
     @PostMapping("/save")
-    public String ajouterPatient(@ModelAttribute Patient patient) {
+    public String ajouterPatient(@ModelAttribute Patient patient, 
+                                 @RequestParam(required = false) String generatedUsername,
+                                 Model model) {
+        // Determine the username to use
+        String username = (generatedUsername != null && !generatedUsername.isEmpty()) 
+            ? generatedUsername 
+            : "patient_" + patient.getFirstName().toLowerCase();
+        
+        // Validate username starts with "patient_"
+        if (!username.startsWith("patient_")) {
+            username = "patient_" + username;
+        }
+        
+        // Check if username already exists
+        if (userService.usernameExists(username)) {
+            model.addAttribute("patient", patient);
+            model.addAttribute("error", "Le nom d'utilisateur '" + username + "' existe déjà. Veuillez choisir un autre nom d'utilisateur.");
+            model.addAttribute("showUsernameEdit", true);
+            return "patient-add";
+        }
+
         patient.setPatientId(sequenceService.getNextSequenceId("patient_seq", "P"));
         patient.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         patient.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
         patientRepository.save(patient);
+
+        // Create user account for patient
+        userService.createPatientUser(username, patient.getEmail(), patient.getPassword(), patient.getPatientId());
+
         return "redirect:/patients/list";
     }
 
@@ -87,11 +115,19 @@ public class PatientController {
     }
 
     /**
-     * Delete patient
+     * Delete patient (soft delete - marks as inactive)
      */
     @GetMapping("/delete/{id}")
     public String supprimerPatient(@PathVariable String id) {
-        patientRepository.deleteById(id);
+        Optional<Patient> patient = patientRepository.findById(id);
+        if (patient.isPresent()) {
+            Patient pat = patient.get();
+            pat.setActive(false);
+            pat.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
+            patientRepository.save(pat);
+            // Deactivate associated user account
+            userService.deactivateUser(null, pat.getPatientId());
+        }
         return "redirect:/patients/list";
     }
 
@@ -116,7 +152,7 @@ public class PatientController {
     public ResponseEntity<List<Patient>> rechercherPatients(@RequestParam String query) {
         List<Patient> allPatients = patientRepository.findAll();
         String lowerQuery = query.toLowerCase();
-        
+
         List<Patient> results = allPatients.stream()
                 .filter(p -> p.getFirstName().toLowerCase().contains(lowerQuery) ||
                         p.getLastName().toLowerCase().contains(lowerQuery) ||
@@ -124,7 +160,7 @@ public class PatientController {
                         p.getPhone().toLowerCase().contains(lowerQuery) ||
                         p.getPatientId().toLowerCase().contains(lowerQuery))
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(results);
     }
 }

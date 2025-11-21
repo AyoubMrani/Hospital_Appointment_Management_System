@@ -25,22 +25,26 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByUsername(username);
-        
+
         if (!userOptional.isPresent()) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
-        
+
         User user = userOptional.get();
-        
-        // Create authorities - default to USER role
+
+        // Create authorities based on user role
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        
+        String role = user.getRole() != null ? user.getRole() : "PATIENT";
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+
         // Return custom UserDetails implementation with plaintext password
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                authorities
-        );
+                user.isActive(),
+                true,
+                true,
+                true,
+                authorities);
     }
 }

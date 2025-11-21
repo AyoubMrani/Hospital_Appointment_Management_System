@@ -33,10 +33,19 @@ public class WebSecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .authorizeRequests()
-                .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/api/**", "/admin/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
+                .authorizeHttpRequests(authz -> authz
+                        // Public endpoints
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**", "/webjars/**",
+                                "/favicon.ico")
+                        .permitAll()
+                        // Doctor management - ADMIN only
+                        .requestMatchers("/doctors/**").hasRole("ADMIN")
+                        // Patient management - ADMIN or PATIENT (can view own)
+                        .requestMatchers("/patients/**").hasAnyRole("ADMIN", "PATIENT")
+                        // Appointments and Calendar - all authenticated roles
+                        .requestMatchers("/appointments/**", "/calendar/**").hasAnyRole("ADMIN", "DOCTOR", "PATIENT")
+                        // Any other request requires authentication
+                        .anyRequest().authenticated())
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -55,4 +64,3 @@ public class WebSecurityConfig {
                 "/**", "/js**", "/admin/**", "/webjars/**", "/templates/**");
     }
 }
-

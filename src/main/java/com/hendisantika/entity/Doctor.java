@@ -46,6 +46,8 @@ public class Doctor {
 
     private String officePhone;
 
+    private String password; // Password for user account creation
+
     private boolean active = true;
 
     private String createdAt;

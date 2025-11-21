@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  <title>Admin LTE 3 | Registration Page</title>
+  <title>Registration - Smart Hospital RDV</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
@@ -14,73 +14,161 @@
   <link href="/webjars/AdminLTE/3.2.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
   <!-- Theme style -->
   <link href="/webjars/AdminLTE/3.2.0/dist/css/adminlte.min.css" rel="stylesheet">
+
+    <script>
+        // Live username and email generation for patient
+        function updatePatientUsername() {
+            const firstName = document.getElementById('firstName').value.toLowerCase();
+            const username = firstName ? 'patient_' + firstName : '';
+            document.getElementById('username').value = username;
+        }
+
+        function updatePatientEmail() {
+            const firstName = document.getElementById('firstName').value.toLowerCase();
+            const lastName = document.getElementById('lastName').value.toLowerCase();
+            const email = (firstName && lastName) ? firstName + '.' + lastName + '@hopital.com' : '';
+            document.getElementById('email').value = email;
+        }
+
+        // Address auto-fill mapping based on city
+        const cityAddressMap = {
+            'Casablanca': '123 Rue de la Paix',
+            'Rabat': '456 Avenue Mohamed V',
+            'Marrakech': '789 Boulevard Hassan II',
+            'Fez': '321 Rue de l\'Independence',
+            'Tangier': '654 Avenue Sidi Mohammad',
+            'Agadir': '987 Rue Prince Héritier',
+            'Sale': '147 Boulevard Zaid',
+            'Tétouan': '258 Rue du Port',
+            'Meknes': '369 Rue Majorelle'
+        };
+
+        // Auto-fill address based on city selection
+        window.addEventListener('load', function () {
+            const cityField = document.getElementById('city');
+            const addressField = document.getElementById('address');
+
+            if (cityField && addressField) {
+                cityField.addEventListener('change', function () {
+                    if (this.value in cityAddressMap) {
+                        addressField.value = cityAddressMap[this.value];
+                    }
+                });
+            }
+        });
+
+        // Handle form submission to capture username
+        function handlePatientFormSubmit() {
+            const usernameField = document.getElementById('username');
+            const hiddenUsernameField = document.getElementById('hiddenUsername');
+            if (hiddenUsernameField) {
+                hiddenUsernameField.value = usernameField.value;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body class="hold-transition register-page">
-<div class="register-box">
+<div class="register-box" style="width: 90%; max-width: 600px;">
   <div class="register-logo">
-    <a href="../../index2.html"><b>Admin</b>LTE3</a>
+    <a href="/"><b>Smart Hospital</b> RDV</a>
   </div>
 
-  <div class="card">
+    <div class="card">
     <div class="card-body register-card-body">
-      <p class="login-box-msg">Register a new membership</p>
+      <p class="login-box-msg">Create your patient account</p>
 
-      <form action="../../index.html" method="post">
-        <div class="input-group mb-3">
-          <input class="form-control" placeholder="Full name" type="text">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-user"></span>
-            </div>
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Erreur!</strong> <span th:text="${error}"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form action="/patients/save" method="post" onsubmit="handlePatientFormSubmit()">
+        <input type="hidden" id="hiddenUsername" name="generatedUsername">
+        <div class="form-group">
+          <label for="firstName">Prénom <span class="text-danger">*</span></label>
+          <input class="form-control" id="firstName" name="firstName" placeholder="Prénom" type="text" 
+                 onkeyup="updatePatientUsername(); updatePatientEmail();" required>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input class="form-control" id="username" name="username" placeholder="Généré automatiquement" 
+                 type="text" th:readonly="${showUsernameEdit == null}">
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Nom <span class="text-danger">*</span></label>
+          <input class="form-control" id="lastName" name="lastName" placeholder="Nom" type="text" 
+                 onkeyup="updatePatientEmail();" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="dateOfBirth">Date de Naissance</label>
+            <input class="form-control" id="dateOfBirth" name="dateOfBirth" type="date">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="gender">Sexe</label>
+            <select class="form-control" id="gender" name="gender">
+              <option value="">-- Sélectionner --</option>
+              <option value="Homme">Homme</option>
+              <option value="Femme">Femme</option>
+            </select>
           </div>
         </div>
-        <div class="input-group mb-3">
-          <input class="form-control" placeholder="Email" type="email">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
-            </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input class="form-control" id="email" name="email" placeholder="Email" type="email">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Téléphone <span class="text-danger">*</span></label>
+          <input class="form-control" id="phone" name="phone" placeholder="Téléphone" type="tel" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe <span class="text-danger">*</span></label>
+          <input class="form-control" id="password" name="password" placeholder="Mot de passe" 
+                 type="text" required>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Adresse</label>
+          <input class="form-control" id="address" name="address" placeholder="Adresse" type="text">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="city">Ville</label>
+            <input class="form-control" id="city" name="city" placeholder="Casablanca" type="text">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="postalCode">Code Postal</label>
+            <input class="form-control" id="postalCode" name="postalCode" placeholder="20000" type="text">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="country">Pays</label>
+            <input class="form-control" id="country" name="country" placeholder="Maroc" type="text">
           </div>
         </div>
-        <div class="input-group mb-3">
-          <input class="form-control" placeholder="Handphone" type="Handphone">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
+
         <div class="row">
-          <div class="col-8">
-            <div class="icheck-primary">
-              <input id="agreeTerms" name="terms" type="checkbox" value="agree">
-              <label for="agreeTerms">
-                I agree to the <a href="#">terms</a>
-              </label>
-            </div>
-          </div>
-          <!-- /.col -->
-          <div class="col-4">
+          <div class="col-6">
             <button class="btn btn-primary btn-block" type="submit">Register</button>
-            <button class="btn btn-primary btn-block" type="reset">Cancel</button>
           </div>
-          <!-- /.col -->
+          <div class="col-6">
+            <a class="btn btn-secondary btn-block" href="/login">Back to Login</a>
+          </div>
         </div>
       </form>
 
-      <div class="social-auth-links text-center">
-        <p>- OR -</p>
-        <a class="btn btn-block btn-primary" href="#">
-          <i class="fab fa-facebook mr-2"></i>
-          Sign up using Facebook
-        </a>
-        <a class="btn btn-block btn-danger" href="#">
-          <i class="fab fa-google-plus mr-2"></i>
-          Sign up using Google+
-        </a>
+      <div class="text-center mt-3">
+        <p>Already have an account? <a href="/login">Sign in here</a></p>
       </div>
-
-      <a class="text-center" href="login.html">I already have a membership</a>
     </div>
     <!-- /.form-box -->
   </div><!-- /.card -->

@@ -8,7 +8,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 
-
 /**
  * Created by IntelliJ IDEA.
  * Project : springboot-adminlte3-template
@@ -35,4 +34,10 @@ public class User {
     private String email;
 
     private String password;
+
+    // RBAC fields
+    private String role = "PATIENT"; // ADMIN, DOCTOR, or PATIENT
+    private String doctorId; // Link to Doctor entity if user is a doctor
+    private String patientId; // Link to Patient entity if user is a patient
+    private boolean active = true;
 }

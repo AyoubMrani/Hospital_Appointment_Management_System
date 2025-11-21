@@ -48,6 +48,8 @@ public class Patient {
 
     private String country;
 
+    private String password; // Password for user account creation
+
     private boolean active = true;
 
     private String createdAt;
