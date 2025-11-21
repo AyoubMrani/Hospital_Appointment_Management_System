@@ -48,7 +48,7 @@
                                 <p>Liste des Patients</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                             <a class="nav-link" href="/patients/add">
                                 <i class="far fa-plus-square nav-icon"></i>
                                 <p>Ajouter Patient</p>
@@ -104,10 +104,43 @@
                                 <p>Liste des Rendez-vous</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')">
                             <a class="nav-link" href="/appointments/add">
                                 <i class="far fa-plus-square nav-icon"></i>
                                 <p>Planifier Rendez-vous</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Appointment Requests -->
+                <li class="nav-item has-treeview" sec:authorize="hasRole('PATIENT') or hasRole('DOCTOR')">
+                    <a class="nav-link" href="#">
+                        <i class="nav-icon fas fa-file-alt"></i>
+                        <p>
+                            Demandes RDV
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <!-- Patient: Request and View Requests -->
+                        <li class="nav-item" sec:authorize="hasRole('PATIENT')">
+                            <a class="nav-link" href="/appointment-requests/request">
+                                <i class="far fa-plus-square nav-icon"></i>
+                                <p>Demander RDV</p>
+                            </a>
+                        </li>
+                        <li class="nav-item" sec:authorize="hasRole('PATIENT')">
+                            <a class="nav-link" href="/appointment-requests/my-requests">
+                                <i class="far fa-list-alt nav-icon"></i>
+                                <p>Mes Demandes</p>
+                            </a>
+                        </li>
+                        <!-- Doctor: View Pending Requests -->
+                        <li class="nav-item" sec:authorize="hasRole('DOCTOR')">
+                            <a class="nav-link" href="/appointment-requests/pending-requests">
+                                <i class="far fa-list-alt nav-icon"></i>
+                                <p>Demandes Reçues</p>
                             </a>
                         </li>
                     </ul>

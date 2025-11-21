@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{shared/layout}">
+
+<head>
+    <title>My Appointment Requests</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">My Appointment Requests</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active">My Requests</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Request List</h3>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Request ID</th>
+                                            <th>Doctor</th>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Reason</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:if="${requests.isEmpty()}">
+                                            <td colspan="7" class="text-center">No appointment requests found</td>
+                                        </tr>
+                                        <tr th:each="request : ${requests}">
+                                            <td th:text="${request.requestId}"></td>
+                                            <td th:text="${request.doctorName}"></td>
+                                            <td th:text="${request.appointmentDate}"></td>
+                                            <td th:text="${request.appointmentTime}"></td>
+                                            <td th:text="${request.reason}"></td>
+                                            <td>
+                                                <span th:if="${request.status == 'PENDING'}"
+                                                    class="badge badge-warning">Pending</span>
+                                                <span th:if="${request.status == 'APPROVED'}"
+                                                    class="badge badge-success">Approved</span>
+                                                <span th:if="${request.status == 'DENIED'}"
+                                                    class="badge badge-danger">Denied</span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/appointment-requests/view/{id}(id=${request.id})}"
+                                                    class="btn btn-sm btn-info">View</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

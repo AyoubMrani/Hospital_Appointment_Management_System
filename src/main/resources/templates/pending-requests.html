@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{shared/layout}">
+
+<head>
+    <title>Pending Appointment Requests</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="content-wrapper">
+        <!-- Content Header -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Pending Appointment Requests</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header with-border">
+                                <h3 class="card-title">Requests from Patients</h3>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${requests == null or #lists.isEmpty(requests)}" class="alert alert-info">
+                                    <strong>No pending requests found</strong>
+                                </div>
+                                
+                                <div th:if="${requests != null and !#lists.isEmpty(requests)}">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-striped">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>Request ID</th>
+                                                    <th>Patient Name</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Reason</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="request : ${requests}">
+                                                    <td th:text="${request.requestId}"></td>
+                                                    <td th:text="${request.patientName}"></td>
+                                                    <td th:text="${request.appointmentDate}"></td>
+                                                    <td th:text="${request.appointmentTime}"></td>
+                                                    <td th:text="${request.reason}"></td>
+                                                    <td>
+                                                        <span class="badge badge-warning" th:text="${request.status}"></span>
+                                                    </td>
+                                                    <td>
+                                                        <form method="post" 
+                                                            th:action="@{/appointment-requests/approve/{id}(id=${request.id})}"
+                                                            style="display: inline; margin-right: 5px;">
+                                                            <button type="submit" class="btn btn-sm btn-success">
+                                                                <i class="fas fa-check"></i> Approve
+                                                            </button>
+                                                        </form>
+                                                        <form method="post" 
+                                                            th:action="@{/appointment-requests/deny/{id}(id=${request.id})}"
+                                                            style="display: inline;">
+                                                            <input type="hidden" name="denialReason" value="Denied by doctor">
+                                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                                onclick="return confirm('Are you sure you want to deny this request?');">
+                                                                <i class="fas fa-times"></i> Deny
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

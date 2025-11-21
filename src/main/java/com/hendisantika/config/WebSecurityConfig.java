@@ -41,10 +41,12 @@ public class WebSecurityConfig {
                         .permitAll()
                         // Doctor management - ADMIN only
                         .requestMatchers("/doctors/**").hasRole("ADMIN")
-                        // Patient management - ADMIN or PATIENT (can view own)
-                        .requestMatchers("/patients/**").hasAnyRole("ADMIN", "PATIENT")
+                        // Patient management - ADMIN, DOCTOR (view only), or PATIENT (own data)
+                        .requestMatchers("/patients/**").hasAnyRole("ADMIN", "DOCTOR", "PATIENT")
                         // Appointments and Calendar - all authenticated roles
                         .requestMatchers("/appointments/**", "/calendar/**").hasAnyRole("ADMIN", "DOCTOR", "PATIENT")
+                        // Appointment Requests - DOCTOR and PATIENT
+                        .requestMatchers("/appointment-requests/**").hasAnyRole("DOCTOR", "PATIENT")
                         // Any other request requires authentication
                         .anyRequest().authenticated())
                 .formLogin()

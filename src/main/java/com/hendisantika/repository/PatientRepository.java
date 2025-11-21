@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface PatientRepository extends MongoRepository<Patient, String> {
     Optional<Patient> findByPatientId(String patientId);
+
     Optional<Patient> findByEmail(String email);
+
     Optional<Patient> findByPhone(String phone);
 }

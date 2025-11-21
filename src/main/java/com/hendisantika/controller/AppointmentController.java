@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 /**
  * Appointment Controller with comprehensive RBAC
  * - ADMIN: full access to all appointments
- * - DOCTOR: can view/create appointments for own patients only, cannot delete/update
- * - PATIENT: can view own appointments only, can only cancel (not delete/update)
+ * - DOCTOR: can view/create appointments for own patients only, cannot
+ * delete/update
+ * - PATIENT: can view own appointments only, can only cancel (not
+ * delete/update)
  */
 @Controller
 @RequestMapping("/appointments")
@@ -192,7 +194,7 @@ public class AppointmentController {
     @PostMapping("/save")
     public String reserverRendezVous(@ModelAttribute Appointment appointment) {
         User currentUser = getCurrentUser();
-        
+
         // DOCTOR can only create appointments with themselves as doctor
         if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
             if (!appointment.getDoctorId().equals(currentUser.getDoctorId())) {
@@ -285,13 +287,13 @@ public class AppointmentController {
     public String annulerRendezVous(@PathVariable String id, @RequestParam String reason) {
         User currentUser = getCurrentUser();
         Optional<Appointment> appointment = appointmentRepository.findById(id);
-        
+
         if (!appointment.isPresent()) {
             return "redirect:/appointments/list";
         }
-        
+
         Appointment app = appointment.get();
-        
+
         // ADMIN can cancel any appointment
         if (isAdmin()) {
             app.setStatus("Annulé");
@@ -301,7 +303,7 @@ public class AppointmentController {
             appointmentRepository.save(app);
             return "redirect:/appointments/list";
         }
-        
+
         // PATIENT can only cancel their own appointments
         if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
             if (app.getPatientId().equals(currentUser.getPatientId())) {
@@ -312,7 +314,7 @@ public class AppointmentController {
                 appointmentRepository.save(app);
             }
         }
-        
+
         // DOCTOR can only cancel their own appointments
         if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
             if (app.getDoctorId().equals(currentUser.getDoctorId())) {
@@ -323,7 +325,7 @@ public class AppointmentController {
                 appointmentRepository.save(app);
             }
         }
-        
+
         return "redirect:/appointments/list";
     }
 
@@ -346,19 +348,19 @@ public class AppointmentController {
     public String afficherRendezVousParMedecinEtDate(@PathVariable String id, Model model) {
         User currentUser = getCurrentUser();
         Optional<Appointment> appointment = appointmentRepository.findById(id);
-        
+
         if (!appointment.isPresent()) {
             return "redirect:/appointments/list";
         }
-        
+
         Appointment app = appointment.get();
-        
+
         // ADMIN can view any
         if (isAdmin()) {
             model.addAttribute("appointment", app);
             return "appointment-view";
         }
-        
+
         // PATIENT can view only their appointments
         if (isPatient() && currentUser != null && currentUser.getPatientId() != null) {
             if (app.getPatientId().equals(currentUser.getPatientId())) {
@@ -366,7 +368,7 @@ public class AppointmentController {
                 return "appointment-view";
             }
         }
-        
+
         // DOCTOR can view only their appointments
         if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
             if (app.getDoctorId().equals(currentUser.getDoctorId())) {
@@ -374,7 +376,7 @@ public class AppointmentController {
                 return "appointment-view";
             }
         }
-        
+
         return "redirect:/appointments/list";
     }
 
@@ -404,7 +406,7 @@ public class AppointmentController {
     public ResponseEntity<List<Appointment>> rechercherRendezVous(@RequestParam String query) {
         List<Appointment> allAppointments = appointmentRepository.findAll();
         User currentUser = getCurrentUser();
-        
+
         // Filter by role
         if (isDoctor() && currentUser != null && currentUser.getDoctorId() != null) {
             allAppointments = allAppointments.stream()
@@ -415,7 +417,7 @@ public class AppointmentController {
                     .filter(a -> a.getPatientId().equals(currentUser.getPatientId()))
                     .collect(Collectors.toList());
         }
-        
+
         String lowerQuery = query.toLowerCase();
 
         List<Appointment> results = allAppointments.stream()

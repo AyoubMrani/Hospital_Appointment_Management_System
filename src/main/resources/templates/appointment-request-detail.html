@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" layout:decorate="~{shared/layout}">
+
+<head>
+    <title>Request Details</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Request Details</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item" sec:authorize="hasRole('PATIENT')">
+                                <a href="/appointment-requests/my-requests">My Requests</a>
+                            </li>
+                            <li class="breadcrumb-item" sec:authorize="hasRole('DOCTOR')">
+                                <a href="/appointment-requests/pending-requests">Pending Requests</a>
+                            </li>
+                            <li class="breadcrumb-item active">Details</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">Request <span th:text="${appointmentRequest.requestId}"></span>
+                                </h3>
+                                <div class="card-tools pull-right">
+                                    <span th:switch="${appointmentRequest.status}" class="badge">
+                                        <span th:case="'PENDING'" class="badge badge-warning">Pending</span>
+                                        <span th:case="'APPROVED'" class="badge badge-success">Approved</span>
+                                        <span th:case="'DENIED'" class="badge badge-danger">Denied</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Patient</label>
+                                    <p class="form-control-plaintext" th:text="${appointmentRequest.patientName}"></p>
+                                </div>
+                                <div class="form-group">
+                                    <label>Doctor</label>
+                                    <p class="form-control-plaintext" th:text="${appointmentRequest.doctorName}"></p>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Appointment Date</label>
+                                            <p class="form-control-plaintext"
+                                                th:text="${appointmentRequest.appointmentDate}"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Appointment Time</label>
+                                            <p class="form-control-plaintext"
+                                                th:text="${appointmentRequest.appointmentTime}"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Reason for Appointment</label>
+                                    <p class="form-control-plaintext" th:text="${appointmentRequest.reason}"></p>
+                                </div>
+
+                                <div th:if="${appointmentRequest.status == 'DENIED'}">
+                                    <div class="form-group">
+                                        <label>Reason for Denial</label>
+                                        <p class="form-control-plaintext" th:text="${appointmentRequest.denialReason}">
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Requested On</label>
+                                            <p class="form-control-plaintext" th:text="${appointmentRequest.createdAt}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" th:if="${appointmentRequest.updatedAt != null}">
+                                        <div class="form-group">
+                                            <label>Updated On</label>
+                                            <p class="form-control-plaintext" th:text="${appointmentRequest.updatedAt}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Doctor Actions for Pending Requests -->
+                            <div class="card-footer" sec:authorize="hasRole('DOCTOR')"
+                                th:if="${appointmentRequest.status == 'PENDING'}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <form method="post"
+                                            th:action="@{/appointment-requests/approve/{id}(id=${appointmentRequest.id})}">
+                                            <button type="submit" class="btn btn-success btn-block">
+                                                <i class="fas fa-check"></i> Approve Request
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-danger btn-block" data-toggle="modal"
+                                            data-target="#denyModal">
+                                            <i class="fas fa-times"></i> Deny Request
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Status Summary -->
+                        <div class="card card-outline"
+                            th:classappend="${appointmentRequest.status == 'APPROVED' ? 'card-success' : appointmentRequest.status == 'DENIED' ? 'card-danger' : 'card-warning'}">
+                            <div class="card-header">
+                                <h3 class="card-title">Status Summary</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Current Status</label>
+                                    <span th:switch="${appointmentRequest.status}" class="badge"
+                                        style="font-size: 0.95rem;">
+                                        <span th:case="'PENDING'" class="badge badge-warning">Pending Review</span>
+                                        <span th:case="'APPROVED'" class="badge badge-success">Approved</span>
+                                        <span th:case="'DENIED'" class="badge badge-danger">Denied</span>
+                                    </span>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label>Request ID</label>
+                                    <p class="form-control-plaintext small" th:text="${appointmentRequest.requestId}">
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Request Created</label>
+                                    <p class="form-control-plaintext small" th:text="${appointmentRequest.createdAt}">
+                                    </p>
+                                </div>
+
+                                <a href="javascript:history.back()" class="btn btn-secondary btn-block mt-4">Back</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Deny Modal -->
+    <div class="modal fade" id="denyModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Deny Appointment Request</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form method="post" th:action="@{/appointment-requests/deny/{id}(id=${appointmentRequest.id})}">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="denialReason">Please provide a reason for denial:</label>
+                            <textarea class="form-control" id="denialReason" name="denialReason" rows="4"
+                                placeholder="Enter reason..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Confirm Denial</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
