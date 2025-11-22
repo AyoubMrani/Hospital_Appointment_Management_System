@@ -33,6 +33,7 @@ public class SpringbootAdminlte3TemplateApplication {
                 mongoOperations.dropCollection("doctors");
                 mongoOperations.dropCollection("patients");
                 mongoOperations.dropCollection("appointments");
+                mongoOperations.dropCollection("appointment_requests");
                 mongoOperations.dropCollection("sequences");
                 System.out.println("✅ Dropped all existing collections");
             } catch (Exception e) {
@@ -382,6 +383,7 @@ public class SpringbootAdminlte3TemplateApplication {
             System.out.println("   9 Patients created (3 per doctor)");
             System.out.println("   13 Users created (1 admin, 3 doctors, 9 patients)");
             System.out.println("   No appointments created");
+            System.out.println("   No appointment_requests created");
         };
     }
 }
