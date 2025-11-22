@@ -240,41 +240,58 @@ public class AppointmentController {
      */
     @GetMapping("/edit/{id}")
     public String afficherFormulaireModifierRendezVous(@PathVariable String id, Model model) {
-        if (!isAdmin()) {
+        User currentUser = getCurrentUser();
+        Optional<Appointment> appointment = appointmentRepository.findById(id);
+
+        if (!appointment.isPresent()) {
             return "redirect:/appointments/list";
         }
-        Optional<Appointment> appointment = appointmentRepository.findById(id);
-        if (appointment.isPresent()) {
+
+        Appointment apt = appointment.get();
+
+        // ADMIN can edit any appointment
+        // DOCTOR can only edit their own appointments
+        if (isAdmin() || (isDoctor() && currentUser != null && apt.getDoctorId().equals(currentUser.getDoctorId()))) {
             List<Patient> patients = patientRepository.findAll();
             List<Doctor> doctors = doctorRepository.findAll();
-            model.addAttribute("appointment", appointment.get());
+            model.addAttribute("appointment", apt);
             model.addAttribute("patients", patients);
             model.addAttribute("doctors", doctors);
             return "appointment-edit";
         }
+
         return "redirect:/appointments/list";
     }
 
     /**
-     * Update appointment - ADMIN only
+     * Update appointment - ADMIN can update any, DOCTOR can update their own
      */
     @PostMapping("/update")
     public String modifierRendezVous(@ModelAttribute Appointment appointment) {
-        if (!isAdmin()) {
+        User currentUser = getCurrentUser();
+        Optional<Appointment> existingAppointment = appointmentRepository.findById(appointment.getId());
+
+        if (!existingAppointment.isPresent()) {
             return "redirect:/appointments/list";
         }
-        // Preserve existing data
-        Optional<Appointment> existingAppointment = appointmentRepository.findById(appointment.getId());
-        if (existingAppointment.isPresent()) {
-            Appointment existing = existingAppointment.get();
-            appointment.setAppointmentId(existing.getAppointmentId());
-            appointment.setCreatedAt(existing.getCreatedAt());
-            appointment.setPatientId(existing.getPatientId());
-            appointment.setDoctorId(existing.getDoctorId());
-            appointment.setPatientName(existing.getPatientName());
-            appointment.setDoctorName(existing.getDoctorName());
-            appointment.setDoctorSpecialization(existing.getDoctorSpecialization());
+
+        Appointment existing = existingAppointment.get();
+
+        // ADMIN can update any appointment
+        // DOCTOR can only update their own appointments
+        if (!(isAdmin()
+                || (isDoctor() && currentUser != null && existing.getDoctorId().equals(currentUser.getDoctorId())))) {
+            return "redirect:/appointments/list";
         }
+
+        // Preserve existing data
+        appointment.setAppointmentId(existing.getAppointmentId());
+        appointment.setCreatedAt(existing.getCreatedAt());
+        appointment.setPatientId(existing.getPatientId());
+        appointment.setDoctorId(existing.getDoctorId());
+        appointment.setPatientName(existing.getPatientName());
+        appointment.setDoctorName(existing.getDoctorName());
+        appointment.setDoctorSpecialization(existing.getDoctorSpecialization());
         appointment.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
         appointmentRepository.save(appointment);
         return "redirect:/appointments/list";
@@ -334,10 +351,22 @@ public class AppointmentController {
      */
     @GetMapping("/delete/{id}")
     public String supprimerRendezVous(@PathVariable String id) {
-        if (!isAdmin()) {
-            return "redirect:/";
+        User currentUser = getCurrentUser();
+        Optional<Appointment> appointment = appointmentRepository.findById(id);
+
+        if (!appointment.isPresent()) {
+            return "redirect:/appointments/list";
         }
-        appointmentRepository.deleteById(id);
+
+        Appointment app = appointment.get();
+
+        // ADMIN can delete any appointment
+        // DOCTOR can only delete their own appointments
+        if (isAdmin() || (isDoctor() && currentUser != null && app.getDoctorId().equals(currentUser.getDoctorId()))) {
+            appointmentRepository.deleteById(id);
+            return "redirect:/calendar#calendar";
+        }
+
         return "redirect:/calendar#calendar";
     }
 
