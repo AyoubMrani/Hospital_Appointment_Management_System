@@ -60,6 +60,26 @@ public class CalendarController {
     }
 
     /**
+     * API endpoint to get current user information (ID, role, etc)
+     */
+    @GetMapping("/api/current-user")
+    @ResponseBody
+    public ResponseEntity<?> getCurrentUserInfo() {
+        User user = getCurrentUser();
+        if (user == null) {
+            return ResponseEntity.ok(null);
+        }
+        
+        return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
+            put("id", user.getId());
+            put("username", user.getUsername());
+            put("role", user.getRole());
+            put("doctorId", user.getDoctorId());
+            put("patientId", user.getPatientId());
+        }});
+    }
+
+    /**
      * API endpoint to get all appointments in FullCalendar format (filtered by
      * role)
      */

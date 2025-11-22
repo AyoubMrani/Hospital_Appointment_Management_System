@@ -120,7 +120,7 @@
                         if (!availabilityResult.available) {
                             // Doctor not available - show error
                             let alertHtml = availabilityResult.message;
-                            
+
                             // If working days are provided, add them to the alert
                             if (availabilityResult.workingDays && availabilityResult.workingDays.length > 0) {
                                 alertHtml += '<br><br><strong>Jours de travail disponibles:</strong><ul style="text-align: left; margin: 10px 0;">';
@@ -129,7 +129,7 @@
                                 });
                                 alertHtml += '</ul>';
                             }
-                            
+
                             Swal.fire({
                                 title: 'Médecin Non Disponible',
                                 html: alertHtml,

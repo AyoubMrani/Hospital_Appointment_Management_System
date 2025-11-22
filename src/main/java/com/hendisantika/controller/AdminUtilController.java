@@ -73,7 +73,7 @@ public class AdminUtilController {
             sb.append("<h2>Users in Database (").append(users.size()).append(")</h2>");
             sb.append("<table border='1' cellpadding='10'>");
             sb.append("<tr><th>ID</th><th>Username</th><th>Password</th><th>Email</th></tr>");
-            
+
             for (User u : users) {
                 sb.append("<tr>");
                 sb.append("<td>").append(u.getId()).append("</td>");

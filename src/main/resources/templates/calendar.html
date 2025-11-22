@@ -372,6 +372,7 @@
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1>📅 Calendrier des Rendez-vous</h1>
+                        <input type="text" readonly id="meeeee" value="">
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -464,12 +465,18 @@
                             </div>
 
                             <!-- Doctor Selection -->
-                            <div class="form-group">
+                            <div class="form-group" sec:authorize="hasRole('ADMIN')" >
                                 <label for="doctorId">Médecin <span style="color: #e74c3c;">*</span></label>
                                 <select id="doctorId" name="doctorId" required>
                                     <option value="">-- Sélectionner un médecin --</option>
                                 </select>
                             </div>
+
+                            <div class="form-group" sec:authorize="hasRole('DOCTOR')" style="display: none;">
+                                <label for="doctorId">Médecin <span style="color: #e74c3c;">*</span></label>
+                                <input id="doctorId" name="doctorId" th:value="${currentUserDoctorId}" required>
+                            </div>
+
 
                             <!-- Date and Time Row -->
                             <div class="form-row">
@@ -530,6 +537,8 @@
             function openAddAppointmentModal() {
                 document.getElementById('addAppointmentModal').classList.add('show');
                 loadPatientsAndDoctors();
+                // Load current user info for doctor field
+                loadCurrentUserInfo();
                 // Set today's date as default
                 document.getElementById('date').valueAsDate = new Date();
             }
@@ -537,6 +546,21 @@
             function closeAddAppointmentModal() {
                 document.getElementById('addAppointmentModal').classList.remove('show');
                 document.getElementById('appointmentForm').reset();
+            }
+
+            // Load current user information
+            function loadCurrentUserInfo() {
+                fetch('/calendar/api/current-user')
+                    .then(response => response.json())
+                    .then(user => {
+                        if (user && user.doctorId) {
+                            const doctorIdInput = document.getElementById('doctorId');
+                            if (doctorIdInput) {
+                                doctorIdInput.value = user.doctorId;
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error loading current user:', error));
             }
 
             // Load patients and doctors into dropdowns
