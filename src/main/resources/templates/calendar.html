@@ -395,7 +395,11 @@
 
                 <!-- Quick Actions -->
                 <div class="quick-actions">
-                    <a href="#" onclick="openAddAppointmentModal(); return false;">
+                    <a href="#" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')"
+                        onclick="openAddAppointmentModal(); return false;">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </a>
+                    <a href="/appointment-requests/request" sec:authorize="hasAnyRole('PATIENT')">
                         <i class="fas fa-plus"></i> Ajouter
                     </a>
                     <a href="/appointments/list">
@@ -592,7 +596,7 @@
                         if (!availabilityResult.available) {
                             // Doctor not available - show error
                             let alertHtml = availabilityResult.message;
-                            
+
                             // If working days are provided, add them to the alert
                             if (availabilityResult.workingDays && availabilityResult.workingDays.length > 0) {
                                 alertHtml += '<br><br><strong>Jours de travail disponibles:</strong><ul style="text-align: left; margin: 10px 0;">';
@@ -601,7 +605,7 @@
                                 });
                                 alertHtml += '</ul>';
                             }
-                            
+
                             Swal.fire({
                                 title: 'Médecin Non Disponible',
                                 html: alertHtml,
@@ -774,7 +778,15 @@
                         addEventButton: {
                             text: '+ Ajouter',
                             click: function () {
-                                openAddAppointmentModal();
+                                // Check if user is patient by looking at visible quick action links
+                                const isPatient = document.querySelector('a[href="/appointment-requests/request"]') !== null;
+                                if (isPatient) {
+                                    // Redirect patients to appointment request page
+                                    window.location.href = '/appointment-requests/request';
+                                } else {
+                                    // Show modal for ADMIN and DOCTOR
+                                    openAddAppointmentModal();
+                                }
                             }
                         }
                     },

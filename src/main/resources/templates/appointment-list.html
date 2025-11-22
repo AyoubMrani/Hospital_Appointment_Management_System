@@ -88,7 +88,7 @@
                                         </form>
                                     </div>
                                     <div class="col-sm-4 text-right">
-                                        <a href="/appointments/add" class="btn btn-primary btn-sm">
+                                        <a href="/appointment-requests/request" class="btn btn-primary btn-sm">
                                             <i class="fas fa-plus"></i> Planifier Rendez-vous
                                         </a>
                                     </div>
@@ -96,7 +96,7 @@
                             </div>
                             <div class="card-body">
                                 <div th:if="${appointments.isEmpty()}" class="alert alert-info">
-                                    Aucun rendez-vous trouvé. <a href="/appointments/add">Planifier votre premier
+                                    Aucun rendez-vous trouvé. <a href="/appointment-requests/request">Planifier votre premier
                                         rendez-vous</a>
                                 </div>
                                 <div th:if="${!appointments.isEmpty()}" class="table-responsive">

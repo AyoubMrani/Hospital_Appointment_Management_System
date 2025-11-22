@@ -33,7 +33,7 @@
                 </li>
 
                 <!-- Patients Management -->
-                <li class="nav-item has-treeview">
+                <li class="nav-item has-treeview" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')">
                     <a class="nav-link" href="#">
                         <i class="nav-icon fas fa-users"></i>
                         <p>

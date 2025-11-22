@@ -34,8 +34,8 @@
                             <div class="card-header">
                                 <h3 class="card-title">Formulaire de Demande de Rendez-vous</h3>
                             </div>
-                            <form method="post" th:action="@{/appointment-requests/save}"
-                                th:object="${appointmentRequest}">
+                            <form id="appointmentRequestForm" method="post" th:action="@{/appointment-requests/save}"
+                                th:object="${appointmentRequest}" onsubmit="submitAppointmentRequestForm(event)">
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label for="doctorId">Sélectionner un Médecin <span
@@ -82,6 +82,117 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <div layout:fragment="script">
+        <script>
+            // Submit appointment request form with availability check
+            function submitAppointmentRequestForm(event) {
+                event.preventDefault();
+
+                const formData = new FormData(document.getElementById('appointmentRequestForm'));
+                const doctorId = formData.get('doctorId');
+                const appointmentDate = formData.get('appointmentDate');
+                const appointmentTime = formData.get('appointmentTime');
+
+                // Check if required fields are filled
+                if (!doctorId || !appointmentDate || !appointmentTime) {
+                    Swal.fire({
+                        title: 'Erreur',
+                        text: 'Veuillez remplir tous les champs requis',
+                        icon: 'error',
+                        confirmButtonColor: '#667eea'
+                    });
+                    return;
+                }
+
+                const data = {
+                    doctorId: doctorId,
+                    appointmentDate: appointmentDate,
+                    appointmentTime: appointmentTime,
+                    reason: formData.get('reason')
+                };
+
+                // Check doctor availability first
+                fetch(`/appointments/api/check-availability?doctorId=${doctorId}&date=${appointmentDate}&time=${appointmentTime}`)
+                    .then(response => response.json())
+                    .then(availabilityResult => {
+                        if (!availabilityResult.available) {
+                            // Doctor not available - show error
+                            let alertHtml = availabilityResult.message;
+                            
+                            // If working days are provided, add them to the alert
+                            if (availabilityResult.workingDays && availabilityResult.workingDays.length > 0) {
+                                alertHtml += '<br><br><strong>Jours de travail disponibles:</strong><ul style="text-align: left; margin: 10px 0;">';
+                                availabilityResult.workingDays.forEach(day => {
+                                    alertHtml += '<li>' + day + '</li>';
+                                });
+                                alertHtml += '</ul>';
+                            }
+                            
+                            Swal.fire({
+                                title: 'Médecin Non Disponible',
+                                html: alertHtml,
+                                icon: 'warning',
+                                confirmButtonColor: '#667eea',
+                                confirmButtonText: 'OK'
+                            });
+                            return;
+                        }
+
+                        // Doctor is available - proceed with request creation
+                        fetch('/appointment-requests/save', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams(data)
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Show success message
+                                    Swal.fire({
+                                        title: 'Succès!',
+                                        text: 'Votre demande de rendez-vous a été soumise avec succès!',
+                                        icon: 'success',
+                                        confirmButtonColor: '#667eea',
+                                        confirmButtonText: 'OK',
+                                        timer: 3000,
+                                        timerProgressBar: false
+                                    }).then((result) => {
+                                        // Redirect back to requests list
+                                        window.location.href = '/appointment-requests/my-requests';
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Erreur',
+                                        text: 'Erreur lors de la soumission de la demande',
+                                        icon: 'error',
+                                        confirmButtonColor: '#667eea'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Erreur',
+                                    text: 'Erreur: ' + error,
+                                    icon: 'error',
+                                    confirmButtonColor: '#667eea'
+                                });
+                            });
+                    })
+                    .catch(error => {
+                        console.error('Availability check error:', error);
+                        Swal.fire({
+                            title: 'Erreur',
+                            text: 'Erreur lors de la vérification de disponibilité',
+                            icon: 'error',
+                            confirmButtonColor: '#667eea'
+                        });
+                    });
+            }
+        </script>
     </div>
 </body>
 
