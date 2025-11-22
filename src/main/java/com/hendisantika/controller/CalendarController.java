@@ -69,14 +69,16 @@ public class CalendarController {
         if (user == null) {
             return ResponseEntity.ok(null);
         }
-        
-        return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
-            put("id", user.getId());
-            put("username", user.getUsername());
-            put("role", user.getRole());
-            put("doctorId", user.getDoctorId());
-            put("patientId", user.getPatientId());
-        }});
+
+        return ResponseEntity.ok(new java.util.HashMap<String, Object>() {
+            {
+                put("id", user.getId());
+                put("username", user.getUsername());
+                put("role", user.getRole());
+                put("doctorId", user.getDoctorId());
+                put("patientId", user.getPatientId());
+            }
+        });
     }
 
     /**

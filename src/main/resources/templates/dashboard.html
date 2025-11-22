@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html layout:decorate="~{shared/layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    xmlns:th="http://www.thymeleaf.org">
+    xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Tableau de Bord</title>
 
 </head>
 
@@ -18,12 +18,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0 text-dark">Dashboard</h1>
+                        <h1 class="m-0 text-dark">Tableau de Bord</h1>
                     </div><!-- /.col -->
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Dashboard</li>
+                            <li class="breadcrumb-item"><a href="#">Accueil</a></li>
+                            <li class="breadcrumb-item active">Tableau de Bord</li>
                         </ol>
                     </div><!-- /.col -->
                 </div><!-- /.row -->
@@ -34,81 +34,190 @@
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
-                <!-- Small boxes (Stat box) -->
-                <div class="row">
-                    <!-- Patients Count -->
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-info">
-                            <div class="inner">
-                                <h3 id="patientCount">0</h3>
 
-                                <p>Total Patients</p>
+                <!-- ADMIN DASHBOARD -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <!-- Small boxes (Stat box) for Admin -->
+                    <div class="row">
+                        <!-- Patients Count -->
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3 id="patientCount">0</h3>
+
+                                    <p>Total Patients</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <a class="small-box-footer" href="/patients/list">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
                             </div>
-                            <div class="icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <a class="small-box-footer" href="/patients/list">View All <i
-                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                    </div>
-                    <!-- ./col -->
+                        <!-- ./col -->
 
-                    <!-- Doctors Count -->
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-success">
-                            <div class="inner">
-                                <h3 id="doctorCount">0</h3>
+                        <!-- Doctors Count -->
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3 id="doctorCount">0</h3>
 
-                                <p>Total Doctors</p>
+                                    <p>Total Médecins</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-stethoscope"></i>
+                                </div>
+                                <a class="small-box-footer" href="/doctors/list">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
                             </div>
-                            <div class="icon">
-                                <i class="fas fa-stethoscope"></i>
-                            </div>
-                            <a class="small-box-footer" href="/doctors/list">View All <i
-                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                    </div>
-                    <!-- ./col -->
+                        <!-- ./col -->
 
-                    <!-- Appointments Count -->
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-warning">
-                            <div class="inner">
-                                <h3 id="appointmentCount">0</h3>
+                        <!-- Appointments Count -->
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3 id="appointmentCount">0</h3>
 
-                                <p>Total Appointments</p>
+                                    <p>Total Rendez-vous</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <a class="small-box-footer" href="/appointments/list">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
                             </div>
-                            <div class="icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <a class="small-box-footer" href="/appointments/list">View All <i
-                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
-                    </div>
-                    <!-- ./col -->
+                        <!-- ./col -->
 
-                    <!-- Last Updated -->
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-danger">
-                            <div class="inner">
-                                <h3 style="font-size: 20px" id="lastUpdated">Now</h3>
+                        <!-- Last Updated -->
+                        <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-danger">
+                                <div class="inner">
+                                    <h3 style="font-size: 20px" id="lastUpdated">Now</h3>
 
-                                <p>Last Updated</p>
+                                    <p>Dernière Mise à Jour</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                                <a class="small-box-footer" href="javascript:void(0);" onclick="loadStats()">Actualiser
+                                    <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
-                            <div class="icon">
-                                <i class="fas fa-sync-alt"></i>
-                            </div>
-                            <a class="small-box-footer" href="javascript:void(0);" onclick="loadStats()">Refresh <i
-                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
+                        <!-- ./col -->
                     </div>
-                    <!-- ./col -->
+                    <!-- /.row -->
                 </div>
-                <!-- /.row -->
+
+                <!-- DOCTOR DASHBOARD -->
+                <div sec:authorize="hasRole('DOCTOR')">
+                    <!-- Small boxes for Doctor -->
+                    <div class="row">
+                        <!-- My Appointments -->
+                        <div class="col-lg-4 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3 id="myAppointmentCount">0</h3>
+
+                                    <p>Mes Rendez-vous</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <a class="small-box-footer" href="/appointments/list">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+
+                        <!-- Pending Requests -->
+                        <div class="col-lg-4 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3 id="pendingRequestCount">0</h3>
+
+                                    <p>Demandes en Attente</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <a class="small-box-footer" href="/appointment-requests/pending-requests">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+
+                        <!-- Total Patients for Doctor -->
+                        <div class="col-lg-4 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3 id="totalPatientCount">0</h3>
+
+                                    <p>Patients Totaux</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <a class="small-box-footer" href="/patients/list">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+
+                <!-- PATIENT DASHBOARD -->
+                <div sec:authorize="hasRole('PATIENT')">
+                    <!-- Small boxes for Patient -->
+                    <div class="row">
+                        <!-- Upcoming Appointments -->
+                        <div class="col-lg-6 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3 id="upcomingAppointmentCount">0</h3>
+
+                                    <p>Rendez-vous à Venir</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <a class="small-box-footer" href="/appointments/list">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+
+                        <!-- My Requests -->
+                        <div class="col-lg-6 col-6">
+                            <!-- small box -->
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3 id="myRequestCount">0</h3>
+
+                                    <p>Mes Demandes RDV</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <a class="small-box-footer" href="/appointment-requests/my-requests">Voir Tous <i
+                                        class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <!-- ./col -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+
             </div>
         </section>
         <!-- End Main content -->
@@ -118,24 +227,65 @@
 
     <th:block layout:fragment="script">
         <script>
-            // Function to load statistics from API
+            // Function to load statistics from API based on user role
             function loadStats() {
                 fetch('/api/stats/counts')
                     .then(response => response.json())
                     .then(data => {
-                        // Update the counts
-                        document.getElementById('patientCount').textContent = data.patientCount;
-                        document.getElementById('doctorCount').textContent = data.doctorCount;
-                        document.getElementById('appointmentCount').textContent = data.appointmentCount;
+                        // Update ADMIN dashboard counts
+                        const patientCountEl = document.getElementById('patientCount');
+                        if (patientCountEl) {
+                            patientCountEl.textContent = data.patientCount;
+                        }
+
+                        const doctorCountEl = document.getElementById('doctorCount');
+                        if (doctorCountEl) {
+                            doctorCountEl.textContent = data.doctorCount;
+                        }
+
+                        const appointmentCountEl = document.getElementById('appointmentCount');
+                        if (appointmentCountEl) {
+                            appointmentCountEl.textContent = data.appointmentCount;
+                        }
+
+                        // Update DOCTOR dashboard counts
+                        const myAppointmentCountEl = document.getElementById('myAppointmentCount');
+                        if (myAppointmentCountEl) {
+                            myAppointmentCountEl.textContent = data.myAppointmentCount || 0;
+                        }
+
+                        const pendingRequestCountEl = document.getElementById('pendingRequestCount');
+                        if (pendingRequestCountEl) {
+                            pendingRequestCountEl.textContent = data.pendingRequestCount || 0;
+                        }
+
+                        const totalPatientCountEl = document.getElementById('totalPatientCount');
+                        if (totalPatientCountEl) {
+                            totalPatientCountEl.textContent = data.totalPatientCount || 0;
+                        }
+
+                        // Update PATIENT dashboard counts
+                        const upcomingAppointmentCountEl = document.getElementById('upcomingAppointmentCount');
+                        if (upcomingAppointmentCountEl) {
+                            upcomingAppointmentCountEl.textContent = data.upcomingAppointmentCount || 0;
+                        }
+
+                        const myRequestCountEl = document.getElementById('myRequestCount');
+                        if (myRequestCountEl) {
+                            myRequestCountEl.textContent = data.myRequestCount || 0;
+                        }
 
                         // Update the last updated time
-                        const now = new Date();
-                        const timeString = now.toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        });
-                        document.getElementById('lastUpdated').textContent = timeString;
+                        const lastUpdatedEl = document.getElementById('lastUpdated');
+                        if (lastUpdatedEl) {
+                            const now = new Date();
+                            const timeString = now.toLocaleTimeString('fr-FR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            });
+                            lastUpdatedEl.textContent = timeString;
+                        }
 
                         console.log('Stats loaded:', data);
                     })

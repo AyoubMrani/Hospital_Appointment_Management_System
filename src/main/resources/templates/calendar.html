@@ -372,7 +372,6 @@
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1>📅 Calendrier des Rendez-vous</h1>
-                        <input type="text" readonly id="meeeee" value="">
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -465,7 +464,7 @@
                             </div>
 
                             <!-- Doctor Selection -->
-                            <div class="form-group" sec:authorize="hasRole('ADMIN')" >
+                            <div class="form-group" sec:authorize="hasRole('ADMIN')">
                                 <label for="doctorId">Médecin <span style="color: #e74c3c;">*</span></label>
                                 <select id="doctorId" name="doctorId" required>
                                     <option value="">-- Sélectionner un médecin --</option>
